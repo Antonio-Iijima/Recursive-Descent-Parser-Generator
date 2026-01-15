@@ -3,47 +3,52 @@ from main import *
 
 
 tests = [
-    "123",          # 123
-    "1 + 2 + 3",    # 6
-    "8 ** 2",       # 64
-    "(2 + 3) * 5",  # 25
-    "10 - (3 - 2)"  # 9
+    ("123", 123),          # 123
+    ("1 + 2 + 3", 6),    # 6
+    ("8 ** 2", 64),       # 64
+    ("(2 + 3) * 5", 25),  # 25
+    ("10 - (3 - 2)", 9)  # 9
 ]
 
-# for test in tests:
-#     # print(validate(test))
-#     print(evaluate(parse(test)))
+for test, solution in tests:
+    # print(validate(test))
+    AST = parse(test)
+    print(AST)
+    print(type(AST))
+    result = evaluate(AST)
+    print(result == solution or f"ERROR: value of {test} should be {solution}, but received {result or "False|None"}")
+    print()
 
-import re
+# import re
 
-DIGIT = lambda: r"[0-9]"
+# DIGIT = lambda: r"[0-9]"
 
-INT = lambda: rf"-?{DIGIT()}+"
+# INT = lambda: rf"-?{DIGIT()}+"
 
-FLOAT = lambda: rf"-?{INT()}\.{INT()}"
+# FLOAT = lambda: rf"-?{INT()}\.{INT()}"
 
-NUMBER = lambda: rf"{INT()}|{FLOAT()}"
+# NUMBER = lambda: rf"{INT()}|{FLOAT()}"
 
-EXP = lambda: rf"{FACTOR()} \*\* {FACTOR()}"
+# EXP = lambda: rf"{FACTOR()} \*\* {FACTOR()}"
 
-FACTOR = lambda: rf"\({EXPR()}\)|{EXP()}|{NUMBER()}"
+# FACTOR = lambda: rf"\({EXPR()}\)|{EXP()}|{NUMBER()}"
 
-FDIVIDE = lambda: rf"{TERM()} / {FACTOR()}"
+# FDIVIDE = lambda: rf"{TERM()} / {FACTOR()}"
 
-IDIVIDE = lambda: rf"{TERM()} // {FACTOR()}"
+# IDIVIDE = lambda: rf"{TERM()} // {FACTOR()}"
 
-DIVIDE = lambda: rf"{FDIVIDE()}|{IDIVIDE()}"
+# DIVIDE = lambda: rf"{FDIVIDE()}|{IDIVIDE()}"
 
-MULTIPLY = lambda: rf"{TERM()} \* {FACTOR()}"
+# MULTIPLY = lambda: rf"{TERM()} \* {FACTOR()}"
 
-TERM = lambda: rf"{MULTIPLY()}|{DIVIDE()}|{FACTOR()}"
+# TERM = lambda: rf"{MULTIPLY()}|{DIVIDE()}|{FACTOR()}"
 
-ADD = lambda: rf"{EXPR()} \+ {TERM()}"
+# ADD = lambda: rf"{EXPR()} \+ {TERM()}"
 
-SUBTRACT = lambda: rf"{EXPR()} \- {TERM()}"
+# SUBTRACT = lambda: rf"{EXPR()} \- {TERM()}"
 
-EXPR = lambda: rf"{ADD()}|{SUBTRACT()}|{TERM()}"
+# EXPR = lambda: rf"{ADD()}|{SUBTRACT()}|{TERM()}"
 
 
-print(re.fullmatch(r".*(-).*", tests[-1]))
-print(re.split(SUBTRACT(), tests[-1]))
+# print(re.fullmatch(r".*(-).*", tests[-1]))
+# print(re.split(SUBTRACT(), tests[-1]))

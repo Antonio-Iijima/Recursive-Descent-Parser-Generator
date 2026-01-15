@@ -7,7 +7,6 @@
 <Divide>   ::= <IDivide> | <FDivide>
 <IDivide>  ::= <Term> // <Factor>
 <FDivide>  ::= <Term> / <Factor>
-<Factor>   ::= (<Expr>) | <Number>
 <Factor>   ::= (<Expr>) | <Exp> | <Number>
 <Exp>      ::= <Factor> ** <Factor>
 <Number>   ::= <Float> | <Int>

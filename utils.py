@@ -1,9 +1,12 @@
+import re
+
+
+
+re_terminal: str = r"<[A-Z][a-zA-Z]*>"
+
+
 def is_nonterminal(prod: str) -> bool:
-    return all((
-        prod.startswith("<"),
-        prod.endswith(">"),
-        prod[1:-1].isalpha()
-    ))
+    return not (re.fullmatch(re_terminal, prod) == None)
 
 
 def is_terminal(prod: str) -> bool: return not is_nonterminal(prod)
