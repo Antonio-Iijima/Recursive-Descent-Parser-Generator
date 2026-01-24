@@ -1,14 +1,38 @@
-def p_add(a, b): return a + b
-def p_subtract(a, b): return a - b
-def p_multiply(a, b): return a * b
-def p_idivide(a, b): return a // b
-def p_fdivide(a, b): return a / b
-def p_factor(a): return (a)
-def p_exp(a, b): return a ** b
-def p_float(a, b): return float(f"{a}.{b}")
-def p_int(a, b): return int(f"{a}{b}")
-def p_digit(a): return int(a)
+def p_expr(expr):
+    return expr[0]
 
+def p_add(expr): 
+    return expr[0] + expr[2]
 
-def p_slist(a, b): return a, b
-def p_symbolexpr(a): return a
+def p_subtract(expr): 
+    return expr[0] - expr[2]
+
+def p_term(expr): 
+    return expr[0]
+
+def p_multiply(expr): 
+    return expr[0] * expr[2]
+
+def p_idivide(expr): 
+    return expr[0] // expr[2]
+
+def p_fdivide(expr): 
+    return expr[0] // expr[2]
+
+def p_factor(expr): 
+    return expr[1] if len(expr) == 3 else expr[0]
+
+def p_exp(expr): 
+    return expr[0] ** expr[2]
+
+def p_number(expr): 
+    return expr[0]
+
+def p_float(expr): 
+    return float("".join(expr))
+
+def p_int(expr): 
+    return int("".join(map(str, expr))) if len(expr) == 2 else int(expr[0])
+
+def p_digit(expr): 
+    return int(expr[0])

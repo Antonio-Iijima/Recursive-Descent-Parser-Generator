@@ -1,2 +1,5 @@
-def p_symbolexpr(a): return a
-def p_slist(a, b): return a, b
+def p_symbolexpr(expr): 
+    return "".join(expr) if len(expr) == 3 else expr[0]
+
+def p_slist(expr):
+    return "".join(expr) if len(expr) == 3 else expr[0]

@@ -1,4 +1,4 @@
-from parser_generator import generate
+from AST_generator import generate_AST
 
 from os.path import abspath, exists
 from os import listdir, remove
@@ -40,7 +40,7 @@ else:
 
 
 print()
-generate(
+generate_AST(
     syntax=SYNTAX,
     semantics=SEMANTICS,
     debug=dFlag
