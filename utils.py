@@ -53,4 +53,4 @@ def split_nonterminals(prod: str) -> list:
 def compare(a: list, b: list) -> bool:
     def comparative(x): return x if isinstance(x, str) else x.name
 
-    return all(comparative(x) == comparative(y) for x, y in zip(a, b))
+    return len(a) == len(b) and all(comparative(x) == comparative(y) for x, y in zip(a, b))

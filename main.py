@@ -2,6 +2,7 @@ from AST_generator import generate_AST
 
 from os.path import abspath, exists
 from os import listdir, remove
+from time import time
 from sys import argv
 
 
@@ -53,5 +54,7 @@ from eval import evaluate
 
 if iFlag:
     for line in iter(lambda: input("> "), "quit"):
+        if dFlag: start = time()
         if vFlag: print(validate(line))
         print(evaluate(parse(line)))
+        if dFlag: print(f"Runtime: {time() - start}")
