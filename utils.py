@@ -37,11 +37,11 @@ def split_nonterminals(prod: str) -> list:
 
 
 def compare(a: list, b: list) -> bool:
-    def comparative(x): return x if isinstance(x, str) else x.name
+    """Check if all the elements of `a` and `b` match. Assumes lists are of the same length."""
 
-    if len(a) == len(b):
-        for x, y in zip(a, b):
-            if not comparative(x) == comparative(y):
-                return False
-        return True
-    return False
+    def comparative(x): return x if isinstance(x, str) else x.name
+    a, b = [x for x in a if not x == "ε"], [y for y in b if not y == "ε"]
+
+    for x, y in zip(a, b):
+        if not comparative(x) == comparative(y): return False
+    return True

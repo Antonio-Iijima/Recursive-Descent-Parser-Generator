@@ -5,7 +5,8 @@ from rich import print
 
 class Rule:
     def __init__(self, children):
-        self.children = children
+        from AST import EPSILON
+        self.children = [c for c in children if not c == EPSILON]
 
         
     def __hash__(self):
@@ -22,10 +23,10 @@ class Rule:
 
 
 def parse(expr: str) -> Rule:
-    from AST import GRAMMAR, is_expected, retype, OPERATORS, K
+    from AST import GRAMMAR, is_expected, retype, OPERATORS, K, EPSILON, TERMINALS, EXPECTED_TOKENS
     from main import dFlag
 
-    expr = tokenize(expr)
+    tokens = tokenize(expr)
 
     # A list of states organized by step (i.e. number of processed tokens).
     # For each step, there is a list of states (which is a list of tokens or nodes).
@@ -37,14 +38,20 @@ def parse(expr: str) -> Rule:
         print(EXPECTED_TOKENS)
     
     # For each token, advance a step and begin processing states
-    for token in expr:
-
+    for token in tokens:
+      
         # For each state at the previous step, 
         # add to the current step with the newest token
         current_states = list(map(lambda x: x + [token], current_states))
+        
+        # If we could have an epsilon transition, then simulate it and add it to the future states
+        # if (is_expected(EPSILON, token)):
+        #     current_states.extend(list(map(lambda x: x + [EPSILON], current_states)))
+        #     future_states.extend(current_states)
+        
         if token in OPERATORS: continue
 
-        to_be_reduced = list(current_states)
+        reducible_states = list(current_states)
 
         if dFlag: print("Current states", current_states)
 
@@ -53,39 +60,48 @@ def parse(expr: str) -> Rule:
         # Select a state from the current set for reducible states,
         # and add the reduction to both the set of states at this step, and
         # the set of further reducible states.
-        while to_be_reduced:
-            state = to_be_reduced.pop()
+        while reducible_states:
+            state = reducible_states.pop()
 
             for rule, alternatives in GRAMMAR.items():
                 for pattern in alternatives:
-                    idx = -len(pattern)
+                    idx = len(state)-len(pattern)
+                    reducible = state[idx:]
 
                     # Reduce only states that can produce a valid parse
                     if (
                         retype(state[-1]) in pattern
-                        and -idx == len(state[idx:]) 
-                        and compare(state[idx:], pattern)
+                        and len(pattern) == len(reducible)
+                        and compare(reducible, pattern)
                     ):
-                        reduced = state[:idx] + [rule(state[idx:])]
-                        
-                        to_be_reduced.append(reduced)
+                        reduced = state[:idx] + [rule(reducible)]
 
-                        # Proceed with only states that can produce a valid parse using maximum K-token lookahead
-                        if all(is_expected(reduced[-k], reduced[-k-1]) for k in range(1, min(K, len(reduced)))):
+                        reducible_states.append(reduced)
+
+                        # Proceed with only states that can produce a valid parse using maximum K-token validation;
+                        # idx == k means the validation has reached the first token, which is vacuously true.
+                        if all(idx == k or is_expected(reduced[idx-k], reduced[idx-k-1]) for k in range(min(K, len(reduced)))):
                             future_states.append(reduced)
-                        
+                            
         current_states, future_states = future_states or current_states, []
 
         if dFlag: 
             print("Future states", current_states)
             print()
-
+            
     # Filter for accepting state; if not found return None explicitly
-    for state in current_states:
-        if len(state) == 1 and isinstance(state[0], list(GRAMMAR.keys())[0]):
-            return state[0]
-    return None
+    acceptable_states = [ 
+        state[0] for state in current_states if (
+            len(state) == 1 
+            and isinstance(state[0], list(GRAMMAR.keys())[0]) 
+            and str(state[0]) == expr
+        )
+    ]
 
+    print(list(map(str, acceptable_states)))
+
+    return acceptable_states[0] if acceptable_states else None
+    
 
 
 def validate(expr: str) -> str:

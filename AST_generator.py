@@ -3,8 +3,8 @@ from utils import *
 
 
 def process_syntax(syntax: list[str]) -> dict:
-    return {
-        rule.strip() : [[s for s in split_nonterminals(alternative.strip()) if not s == ""] for alternative in pattern.split("|")]
+    return {                                                                          # "ε"          
+        rule.strip() : [[s for s in split_nonterminals(alternative.strip()) if not s in ("",)] for alternative in pattern.split("|")]
         for rule, pattern in (line.split("::=") for line in syntax)
     }
 
@@ -54,7 +54,12 @@ from parser import Rule
 
 
 """
-    
+#     if "ε" in TERMINALS: AST_text += """
+# class Epsilon(Rule):
+#     '''Rule: `_ ::= ε`'''
+#     name: str = "ε"
+# """
+
     for (rule, alternatives) in GRAMMAR.items():
 
         docstring = f"{rule} ::= {" | ".join("".join(pattern) for pattern in alternatives)}"
@@ -80,9 +85,9 @@ GRAMMAR = {{
 
 
 K = {max(map(len, (pattern for alternatives in GRAMMAR.values() for pattern in alternatives)))}
+EPSILON = "ε"
 
-
-TERMINALS = {TERMINALS}
+TERMINALS = {TERMINALS}.difference({{EPSILON}})
 
 
 TOKENS = TERMINALS.union(GRAMMAR.keys())
@@ -102,27 +107,26 @@ OPERATORS = {{{", ".join(embed_nonterminal(t) if is_nonterminal(t) else f"'{t}'"
 
 EXPECTED_TOKENS = {{ token : [] for token in TOKENS }}
 
+
 def expand_expected(token, x):
     EXPECTED_TOKENS[token].append(x)
 
     for alternative in GRAMMAR.get(x, []):
-        y = alternative[0]
-        if not y in EXPECTED_TOKENS[token] and not y in TERMINALS.difference(OPERATORS):
-            expand_expected(token, y)
+        if len(alternative) > 0:
+            y = alternative[0]
+            if not y in EXPECTED_TOKENS[token] and not y in TERMINALS.difference(OPERATORS):
+                expand_expected(token, y)
 
-for token in TOKENS:
-    for rule in GRAMMAR.values():
-        for alternative in rule:
-            
-            if token in alternative:
-                for i, t in enumerate(alternative[:-1]):
-
-                    if t == token:
-                        expand_expected(token, alternative[i+1])
+for alternatives in GRAMMAR.values():
+    for pattern in alternatives:
+        for i, token in enumerate(pattern[:-1]):
+            expand_expected(token, pattern[i+1])
 
 def retype(x): return type(x) if isinstance(x, Rule) else x
 
-def is_expected(e, x: Rule|str) -> list: return retype(e) in EXPECTED_TOKENS[retype(x)]
+def is_expected(e, x: Rule|str) -> list: 
+    expected = EXPECTED_TOKENS.get(retype(x), [])
+    return retype(e) in expected
 """
 
 
