@@ -10,20 +10,39 @@ def process_syntax(syntax: list[str]) -> dict:
     parameters = {}
     
     prepend, append = [], []
-    while syntax[0].startswith("#"):
-        libraries = syntax[0].removeprefix("#")
+    requirements = set()
 
-        prefix, index = ("MACRO", 1) if libraries.startswith("MACRO") else ("RULE", 0)
-    
-        libraries = libraries.removeprefix(prefix).strip().split(", ")
+    # Identify any required libraries.
+    while syntax[0].startswith("#require"):
+
+        # Skip dependency if already met
+        if syntax[0] in requirements: syntax.pop(0); continue
+
+        requirements.add(syntax[0])
         
-        for library in libraries:
-            with open(f".lib/{prefix.lower()}s/{library}.txt") as file:
-                lib = preprocess_text(file.read().splitlines())
-                if index: prepend += lib
-                else: append += lib
+        # Split declaration of the form: #require (macro|rule) <name>[, <name>]*
+        _, category, *dependencies = syntax.pop(0).split()
+            
+        # Iterate through dependencies: math, spacing, &c.
+        for filename in dependencies:
+            with open(f".lib/{category}s/{filename}.txt") as file:
+                lines = preprocess_text(file.read().splitlines())
+
+                while lines[0].startswith("#require"):
+
+                    # Again, skip dependency if already met
+                    if lines[0] in requirements: lines.pop(0); continue
+
+                    # Otherwise we want to process as another dependency
+                    syntax.insert(0, lines.pop(0))
+
+                # Prepend macros, append rules
+                match category:
+                    case "macro": prepend += lines
+                    case "rule": append += lines
+                    case _: raise SyntaxError(f"Invalid #require location.")
         
-        syntax.pop(0)
+    for dependency in sorted(requirements): print(dependency)
 
     syntax = prepend + syntax + append
 

@@ -1,3 +1,5 @@
+#require macro spacing
+
 <OP_Add> ::= <OP>[+]
 <OP_Subtract> ::= <OP>[-]
 <OP_Multiply> ::= <OP>[*]

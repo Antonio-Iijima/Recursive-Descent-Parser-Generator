@@ -1,5 +1,4 @@
-#MACRO spacing
-#RULE math
+#require rule math
 
 <Expr>     ::= <Add> | <Subtract> | <Term>
 <Add>      ::= <Expr> <OP_Add> <Term>
