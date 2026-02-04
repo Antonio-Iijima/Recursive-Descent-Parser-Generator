@@ -1,3 +1,7 @@
+"""Customize everything, but nothing more."""
+
+
+
 from AST_generator import generate_AST
 from utils import preprocess_text
 

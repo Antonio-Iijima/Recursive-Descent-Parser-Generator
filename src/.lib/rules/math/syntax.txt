@@ -2,14 +2,14 @@
 
 <Operator> ::= <OP_Add> | <OP_Subtract> | <OP_Multiply> | <OP_FDivide> | <OP_IDivide> | <OP_Exp>
 
-<OP_Add> ::= <SPACED>[+]
-<OP_Subtract> ::= <SPACED>[-]
-<OP_Multiply> ::= <SPACED>[*]
-<OP_FDivide> ::= <SPACED>[/]
-<OP_IDivide> ::= <SPACED>[//]
-<OP_Exp> ::= <SPACED>[**]
+<OP_Add>        ::= <SPACED>[+]
+<OP_Subtract>   ::= <SPACED>[-]
+<OP_Multiply>   ::= <SPACED>[*]
+<OP_FDivide>    ::= <SPACED>[/]
+<OP_IDivide>    ::= <SPACED>[//]
+<OP_Exp>        ::= <SPACED>[**]
 
-<Number>   ::= <Int> | <Float>
+<Number>   ::= <OP_Subtract> <Number> | <Int> | <Float>
 <Float>    ::= <Int> . <Int>
 <Int>      ::= <Int> <Digit> | <Digit>
 <Digit>    ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9

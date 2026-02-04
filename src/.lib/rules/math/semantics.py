@@ -1,5 +1,5 @@
 def p_number(expr): 
-    return expr[0]
+    return expr[0] if len(expr) == 1 else -expr[-1]
 
 def p_float(expr): 
     return float("".join(map(str, expr)))
