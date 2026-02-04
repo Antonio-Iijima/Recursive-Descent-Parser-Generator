@@ -1,3 +1,6 @@
+LIB_PATH = ".lib"
+
+
 def preprocess_text(text: list[str]) -> list[str]: 
     return [line for line in text if line and not line.startswith("--")]
 

@@ -1,16 +1,7 @@
-#require rule math
+#require rule infix_math
+#require macro parentheses
 
 <Expr>     ::= <Add> | <Subtract> | <Term>
-<Add>      ::= <Expr> <OP_Add> <Term>
-<Subtract> ::= <Expr> <OP_Subtract> <Term>
 <Term>     ::= <Multiply> | <Divide> | <Factor>
-<Multiply> ::= <Term> <OP_Multiply> <Factor>
 <Divide>   ::= <IDivide> | <FDivide>
-<IDivide>  ::= <Term> <OP_IDivide> <Factor>
-<FDivide>  ::= <Term> <OP_FDivide> <Factor>
-<Factor>   ::= <Paren>[<Expr>] | <Exp> | <Number>
-<Exp>      ::= <Factor> <OP_Exp> <Factor>
-<Number>   ::= <Float> | <Int>
-<Float>    ::= <Int> . <Int>
-<Int>      ::= <Int> <Digit> | <Digit>
-<Digit>    ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+<Factor>   ::= <Parenthesized>[<Expr>] | <Exp> | <Number>

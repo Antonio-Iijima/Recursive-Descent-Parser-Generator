@@ -1,0 +1,8 @@
+#require rule math
+
+<Add>      ::= <OP_Add> <Expr> <Term>
+<Subtract> ::= <OP_Subtract> <Expr> <Term>
+<Multiply> ::= <OP_Multiply> <Term> <Factor>
+<IDivide>  ::= <OP_IDivide> <Term> <Factor>
+<FDivide>  ::= <OP_FDivide> <Term> <Factor>
+<Exp>      ::= <OP_Exp> <Factor> <Factor>

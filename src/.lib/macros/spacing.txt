@@ -1,2 +1,0 @@
-<OP>[a] ::= <SPACES>[a]<SPACES>
-<Paren>[a] ::= <OP_LParen>[a]<OP_RParen>

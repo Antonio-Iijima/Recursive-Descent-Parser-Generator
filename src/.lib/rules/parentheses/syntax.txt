@@ -1,0 +1,4 @@
+#require macro spacing
+
+<LParen> ::= <SPACED>[(]
+<RParen> ::= <SPACED>[)]

@@ -1,2 +1,8 @@
-<SymbolExpr> ::=  x | y | z | (<SList>)
-<SList>      ::= <SymbolExpr> | <SymbolExpr>, <SList>
+#require macro parentheses
+-- #require macro spacing
+#require rule spacing
+
+<SymbolExpr> ::=  x | y | z | <Parenthesized>[<SList>]
+<SList>      ::= <SymbolExpr> | <SymbolExpr> <COMMA> <SList>
+-- <COMMA>      ::= <Spaced>[,]
+<COMMA>      ::= , <SPACES>

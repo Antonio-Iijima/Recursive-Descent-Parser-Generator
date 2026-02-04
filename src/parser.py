@@ -8,6 +8,7 @@ class Rule:
         from AST import EPSILON, SIGMA
 
         self.__name__ = type(self).__name__
+        self.fname = f"p_{self.__name__.lower()}"
         self.children = [{EPSILON : "", SIGMA : " "}.get(c, c) for c in children]
 
         
@@ -92,7 +93,7 @@ def parse(expr: str) -> Rule:
                     # Whole sequence must also be valid. 
                     if (
                         (
-                            not lookahead
+                            (not lookahead)
                             or is_expected(lookahead[0], reduced[-1])
                         ) and (
                             all(idx == k or is_expected(reduced[idx-k], reduced[idx-k-1]) 
@@ -103,7 +104,7 @@ def parse(expr: str) -> Rule:
                         future_states.append(reduced)
                 
                 # If the current pattern does not match, but could match if more tokens
-                elif state[-1] in pattern: future_states.append(state)
+                elif any(token in pattern for token in reversed(state[idx:])): future_states.append(state)
                         
         current_states, future_states = future_states or current_states, []
 

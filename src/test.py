@@ -33,7 +33,9 @@ while args:
             ]
         case "4":
             tests = [
-                ("(x)", "(x)")
+                ("(x)", "(x)"),
+                ("(x, y)", "(x, y)"),
+                ("(x, y, (z))", "(x, y, (z))")
             ]
         case "5":
             tests = [
@@ -43,6 +45,10 @@ while args:
                 ("abba", "abba"),
                 ("aabbaa", "aabbaa"),
                 ("aaba", None),
+            ]
+        case "6":
+            tests = [
+                ("a"*n, "a"*n) for n in range(0, 30, 5)
             ]
 
     for test, solution in tests:

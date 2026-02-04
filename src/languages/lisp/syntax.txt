@@ -1,0 +1,11 @@
+#require rule math
+#require rule abc
+#require macro parentheses
+#require macro spacing
+
+<Program>   ::= <Atom> | <List>
+<Atom>      ::= <Number> | <Symbol>
+<Symbol>    ::= <Operator> | <Id>
+<Id>        ::= <Word>
+<List>      ::= <Parenthesized>[<Atoms>]
+<Atoms>     ::= <Atom> <Atoms> | ε
