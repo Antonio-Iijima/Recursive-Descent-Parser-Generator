@@ -193,7 +193,7 @@ GRAMMAR = {{
 
 
 
-##### CONSTANTS #####
+##### USEFUL VARIABLES #####
 
 
 
@@ -203,22 +203,9 @@ EPSILON = "ε"
 
 SIGMA = "ς"
 
-SPECIAL = {{EPSILON, SIGMA}}
-
 TERMINALS = {TERMINALS}
 
 TOKENS = TERMINALS.union(GRAMMAR.keys())
-
-OPERATORS = {{{", ".join(embed_nonterminal(t) if is_nonterminal(t) else f"'{t}'" for t in set(
-        token 
-                for alternatives in GRAMMAR.values()
-            for pattern in alternatives
-        for token in pattern if (
-            len(pattern) > 1
-            and is_terminal(token)
-            and (not token == pattern[-1])
-            and any(is_nonterminal(x) for x in pattern)
-        )))}}}
 
 EXPECTED_TOKENS = {{ token : [] for token in TOKENS }}
 
@@ -242,7 +229,7 @@ def nullable(x): return retype(x) in EPSILA
 
 
 def is_expected(e, x: Rule|str) -> bool:
-    '''Check if `e` is expected by `x` or `e` is `EPSILON` and x expects a nullable.'''
+    '''Check if `e` is expected by `x` or `e` is `EPSILON` and `x` expects a nullable.'''
  
     expected = EXPECTED_TOKENS.get(retype(x), [])
     return expected and retype(e) in expected or (e == EPSILON and any(nullable(c) for c in expected))
