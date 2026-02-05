@@ -4,74 +4,83 @@ from os.path import exists
 
 
 
-def process_syntax(syntax: list[str]) -> tuple[dict, set]:
+REQUIREMENTS = set()
+
+
+
+def build_grammar(path: str) -> tuple[list, list]:
+    """Recursively build a complete set of grammar rules from path.
+
+:param str path: Path to a directory containing at least a `syntax.txt` and `semantics.py` file, and any dependencies.
+
+:return: Returns a tuple containing two lists: the macros and the rules.
+    """
+
+    syntax = []
+    macros, rules = [], []
+    dependency_macros, dependency_rules = [], []
+
+    if not path in REQUIREMENTS:
+        REQUIREMENTS.add(path)
+
+        with open(f"{path}/syntax.txt") as file:
+            syntax = preprocess_text(file)
+
+            while syntax:
+
+                # Expand #require lines into the grammars of their modules
+                if syntax[0].startswith("#require"):
+                    # Remove #require line and enumerate direct dependencies (i.e. dependencies specified in the #require line) 
+                    _, category, *dependencies = syntax.pop(0).split()
+                    
+                    if not category in ("macro", "rule"): raise SyntaxError(f"Invalid #require location.")
+
+                    dependencies = [
+                        dependency.removesuffix(",").strip() for dependency in dependencies if dependency.strip()
+                    ]
+                    
+                    # General dependency list will be expanded to include all indirect dependencies (i.e. math from math.infix)
+                    for dependency in dependencies:
+                        dependency = dependency.split(".")
+                        for i, _ in enumerate(dependency):
+                            dependency_path = f"{LIB_PATH}/{category}s/{'/'.join(dependency[:i+1])}"
+                            
+                            m, r = build_grammar(dependency_path)
+                            dependency_macros = m + dependency_macros
+                            dependency_rules = r + dependency_rules
+                
+                # Process rules/macros in top-level file            
+                else:
+                    rule, alternatives = syntax.pop(0).split("::=")
+                    rule, alternatives = split_pattern(rule), [split_pattern(pattern) for pattern in alternatives.split("|")]
+                    
+                    if len(rule) == 2:
+                        macros.append([rule, alternatives])
+                    else:
+                        rules.append([rule, alternatives])
+
+    return (
+        macros + dependency_macros,
+        rules + dependency_rules
+    )
+
+
+def process_syntax(path: str) -> dict:
     from rich import print
 
     grammar = {}
     macros = {}
     parameters = {}
     
-    prepend, append = [], []
-    requirements = set()
+    prepend, append = build_grammar(path)
+    syntax = prepend + append
 
-    # Identify any required libraries.
-    while syntax and syntax[0].startswith("#require"):
-
-        # Handle comma-separated multiple dependencies and nested dependencies
-
-        # Split declaration of the form: #require (macro|rule) <name>[, <name>]*
-        _, category, *dependencies = syntax.pop(0).split()
-        dependencies = [dep.removesuffix(",").strip() for dep in dependencies if dep.strip()]
-        
-        # Add parents of nested modules, e.g. #require rule math.infix
-        for i, dependency in enumerate(dependencies):
-            if "." in dependency:
-
-                # Lowest level folder; modify in-place
-                dependency = dependency.split(".")
-                dependencies[i] = "/".join(dependency)
-
-                # Also require all higher level folders to be processed later
-                for j, _ in enumerate(dependency):
-                    submodule = "/".join(dependency[:j+1])
-                    if f"#require {category} {submodule}" not in requirements: 
-                        syntax.insert(0, f"#require {category} {submodule}")
-
-            folder = dependencies[i]
-
-            declaration = f"#require {category} {folder}"
-
-            # Skip dependency if already met
-            if declaration in requirements: continue
-
-            requirements.add(declaration)
-            
-            # Iterate through dependencies: math, spacing, &c.
-            with open(f".lib/{category}s/{folder}/syntax.txt") as file:
-                lines = preprocess_text(file.read().splitlines())
-
-                while lines and lines[0].startswith("#require"):
-
-                    # Again, skip dependency if already met
-                    if lines[0] in requirements: lines.pop(0); continue
-
-                    # Otherwise we want to process as another dependency
-                    syntax.insert(0, lines.pop(0))
-
-                # Prepend macros, append rules
-                match category:
-                    case "macro": prepend += lines
-                    case "rule": append += lines
-                    case _: raise SyntaxError(f"Invalid #require location.")
-        
-    syntax = prepend + syntax + append
-
-    for line in syntax:
-        rule, alternatives = line.split("::=")
-        rule, alternatives = split_pattern(rule), [split_pattern(pattern) for pattern in alternatives.split("|")]
+    REQUIREMENTS.remove(path)
+    
+    for rule, alternatives in syntax:
         
 
-        # Add params to dict
+        # Match macro declaration and add params to dict
         if len(rule) == 2:
             rule, params = rule[0][1:-1], rule[1][1:-1].split()
             macros[rule] = alternatives[0]
@@ -80,8 +89,8 @@ def process_syntax(syntax: list[str]) -> tuple[dict, set]:
         
         rule = rule[0][1:-1]
         
-        # Prep rule entry
-        grammar[rule] = []
+        # Prep rule entry; if rule already exists, continue to add alternatives
+        grammar[rule] = grammar.get(rule, [])
 
         for pattern in alternatives:
             expanded_pattern = []
@@ -113,14 +122,14 @@ def process_syntax(syntax: list[str]) -> tuple[dict, set]:
 
             grammar[rule] = grammar.get(rule) + [expanded_pattern]
 
-    for dependency in sorted(requirements): print(dependency)
+    for dependency in sorted(REQUIREMENTS): print(dependency)
     
     from main import dFlag
     if dFlag:
         print()
         print(grammar)
     
-    return grammar, requirements
+    return grammar
 
 
 def process_semantics(semantics: str) -> str:
@@ -137,12 +146,12 @@ def show_grammar(grammar: dict) -> None:
     return offset
 
 
-def generate_AST(syntax: list[str], semantics, debug: bool = False) -> set:
+def generate_AST(path: str) -> set:
     """Generates an AST from an EBNF grammar (BNF with `|` for convenience) for context-free languages."""
 
     print("Compiling grammar...")
     print()
-    GRAMMAR, REQUIREMENTS = process_syntax(syntax)
+    GRAMMAR = process_syntax(path)
     print()
     
     offset = show_grammar(GRAMMAR)
@@ -292,14 +301,14 @@ for rule, alternatives in GRAMMAR.items():
     with open("eval.py", "w") as file:
         print("Generating eval...")
         print()
-        file.write(generate_eval(semantics, REQUIREMENTS))
+        file.write(generate_eval(path))
     
     print()
     print("Done!")
  
 
 
-def generate_eval(semantics: str, requirements: set[str]) -> str:
+def generate_eval(main_path: str) -> str:
     # AST-bound operations should be prefixed with 'p_'; 
     # global functions and variables (e.g. the environment) with 'g_'
 
@@ -311,14 +320,11 @@ from parser import Rule
 """
     
     
-    for requirement in requirements:
-        _, category, *dependencies = requirement.split()
-
-        if category == "macro": continue
-        for filename in dependencies:
-            folder = f"{LIB_PATH}/{category}s/{filename}"
+    for folder in REQUIREMENTS:
+        if folder.startswith(f"{LIB_PATH}/macros"): continue
+        else:
             path = f"{folder}/semantics.py"
-            if not exists(path): print(f"WARNING: semantics for dependency {folder} not found.")
+            if not exists(path): print(f"WARNING: semantics not found in dependency {folder}.")
             else:
                 with open(path) as file:
                     eval_text += f"""
@@ -331,13 +337,14 @@ from parser import Rule
 """ + file.read()
                     
 
-    if not exists(semantics): print(f"WARNING: semantics for main {semantics} not found.")
+    semantics = main_path + "/semantics.py"
+    if not exists(semantics): print(f"WARNING: semantics not found in main {main_path}.")
     else:
         with open(semantics) as file:
             eval_text += f"""
 
 
-##### MAIN: {semantics.removesuffix("/semantics.py")} #####
+##### MAIN: {main_path} #####
 
 
 

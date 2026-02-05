@@ -3,7 +3,6 @@
 
 
 from AST_generator import generate_AST
-from utils import preprocess_text
 
 from os.path import abspath, exists
 from os import remove
@@ -27,16 +26,9 @@ if len(argv) == 1:
     print("Language folder not found.")
     quit()
 
-language = abspath(argv[1])
-
-with open(f"{language}/syntax.txt") as text: 
-    print()
-    generate_AST(
-        syntax=preprocess_text(text.read().splitlines()),
-        semantics=f"{language}/semantics.py",
-        debug=dFlag
-    )
-    print()
+print()
+generate_AST(abspath(argv[1]))
+print()
 
 from parser import parse
 from eval import evaluate

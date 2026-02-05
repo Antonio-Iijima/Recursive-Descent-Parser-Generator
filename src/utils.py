@@ -1,8 +1,13 @@
+from io import TextIOWrapper
+
+
+
 LIB_PATH = ".lib"
 
 
-def preprocess_text(text: list[str]) -> list[str]: 
-    return [line for line in text if line and not line.startswith("--")]
+
+def preprocess_text(text: TextIOWrapper) -> list[str]: 
+    return [line for line in text.read().splitlines() if line and not line.startswith("--")]
 
 
 def filterl(f, x): 
