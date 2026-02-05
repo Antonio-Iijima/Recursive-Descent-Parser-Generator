@@ -62,11 +62,5 @@ def comparative(x):
 
 
 def compare(a: list, b: list) -> bool:
-    """Check if all the elements of `a` and `b` match, filtering epsilons from both."""
-    from AST import EPSILON
-    
-
-    f = lambda x: not (x == EPSILON)
-    a, b = filterl(f, a), filterl(f, b)
-
+    """Check if all the elements of `a` and `b` match."""
     return len(a) == len(b) and all(comparative(x) == comparative(y) for x, y in zip(a, b))

@@ -28,7 +28,7 @@ class Rule:
 def parse(expr: str) -> Rule:
     from AST import (
         is_expected, expected_patterns,
-        GRAMMAR, K, EPSILON, EXPECTED_TOKENS, EXPECTED_PATTERNS
+        GRAMMAR, K, EXPECTED_TOKENS, EXPECTED_PATTERNS
     )
     from main import dFlag
 
@@ -75,11 +75,11 @@ def parse(expr: str) -> Rule:
             for (rule, pattern) in expected_patterns(state[-1]):
 
                 # We want to ignore epsilons in the pattern since epsilon is not a readable token.
-                idx = len(state) - sum(1 for e in pattern if not e == EPSILON)
+                idx = len(state) - len(pattern)
 
-                reducible = state[idx:] # Will be an empty list if pattern == [EPSILON].
+                reducible = state[idx:]
 
-                # Reduce only if pattern matches the reducible part of the state (excluding epsilon)
+                # Reduce only if pattern matches the reducible part of the state.
                 if compare(reducible, pattern):
                     reduced = state[:idx] + [rule(reducible)]
 
@@ -103,8 +103,8 @@ def parse(expr: str) -> Rule:
                         if dFlag: print("Future", reduced)
                         future_states.append(reduced)
                 
-                # If the current pattern does not match, but could match if more tokens
-                elif state[-1] in pattern: future_states.append(state)
+                # If the current pattern does not match, but could match if given more tokens.
+                elif state[-1] in pattern and not state in future_states: future_states.append(state)
                         
         current_states, future_states = future_states or current_states, []
 

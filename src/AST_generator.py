@@ -5,20 +5,27 @@ from os.path import exists
 
 
 REQUIREMENTS = set()
+DEFAULTS = {
+    "alt" : "|",
+    "lbrace" : "<",
+    "rbrace" : ">",
+    "production" : "::="
+}
 
 
 
 def build_grammar(path: str) -> tuple[list, list]:
-    """Recursively build a complete set of grammar rules from path.
+    """
+Recursively build a complete set of grammar rules from path.
 
-:param str path: Path to a directory containing at least a `syntax.txt` and `semantics.py` file, and any dependencies.
+:param str path: Path to a directory containing at least a `syntax.txt` file, and any dependencies.
 
 :return: Returns a tuple containing two lists: the macros and the rules.
     """
 
-    syntax = []
     macros, rules = [], []
     dependency_macros, dependency_rules = [], []
+    symbols = DEFAULTS.copy()
 
     if not path in REQUIREMENTS:
         REQUIREMENTS.add(path)
@@ -26,12 +33,18 @@ def build_grammar(path: str) -> tuple[list, list]:
         with open(f"{path}/syntax.txt") as file:
             syntax = preprocess_text(file)
 
-            while syntax:
+            for line in syntax:
+
+                # Change alternation symbol
+                if line.startswith("#set"):
+                    _, option, symbol = line.split()
+
+                    symbols[option] = DEFAULTS[option] if symbol == "default" else symbol
 
                 # Expand #require lines into the grammars of their modules
-                if syntax[0].startswith("#require"):
+                elif line.startswith("#require"):
                     # Remove #require line and enumerate direct dependencies (i.e. dependencies specified in the #require line) 
-                    _, category, *dependencies = syntax.pop(0).split()
+                    _, category, *dependencies = line.split()
                     
                     if not category in ("macro", "rule"): raise SyntaxError(f"Invalid #require location.")
 
@@ -44,15 +57,15 @@ def build_grammar(path: str) -> tuple[list, list]:
                         dependency = dependency.split(".")
                         for i, _ in enumerate(dependency):
                             dependency_path = f"{LIB_PATH}/{category}s/{'/'.join(dependency[:i+1])}"
-                            
+
                             m, r = build_grammar(dependency_path)
                             dependency_macros = m + dependency_macros
                             dependency_rules = r + dependency_rules
                 
                 # Process rules/macros in top-level file            
                 else:
-                    rule, alternatives = syntax.pop(0).split("::=")
-                    rule, alternatives = split_pattern(rule), [split_pattern(pattern) for pattern in alternatives.split("|")]
+                    rule, alternatives = line.split(symbols["production"])
+                    rule, alternatives = split_pattern(rule), [split_pattern(pattern) for pattern in alternatives.split(symbols["alt"])]
                     
                     if len(rule) == 2:
                         macros.append([rule, alternatives])
@@ -146,8 +159,12 @@ def show_grammar(grammar: dict) -> None:
     return offset
 
 
-def generate_AST(path: str) -> set:
-    """Generates an AST from an EBNF grammar (BNF with `|` for convenience) for context-free languages."""
+def generate_AST(path: str) -> None:
+    """
+Generates an AST from a context-free grammar.
+    
+:param str path: Path to a folder containing at least a `syntax.txt` file.
+    """
 
     print("Compiling grammar...")
     print()
@@ -239,9 +256,7 @@ def nullable(x): return retype(x) in EPSILA
 
 def is_expected(e, x: Rule|str) -> bool:
     '''Check if `e` is expected by `x` or `e` is `EPSILON` and `x` expects a nullable.'''
- 
-    expected = EXPECTED_TOKENS.get(retype(x), [])
-    return expected and retype(e) in expected or (e == EPSILON and any(nullable(c) for c in expected))
+    return retype(e) in EXPECTED_TOKENS.get(retype(x), [])
 
 
 def expand_expected(token, x):
@@ -276,18 +291,32 @@ del count
 
 # Grammar post-processing/expansion
 for rule, alternatives in GRAMMAR.items():
+    GRAMMAR[rule] = []
+    
     for pattern in alternatives:
 
-        # 1) Expand expected tokens
+        # Expand nullable patterns
+        expanded_null_patterns = [[]]
+        for i, token in enumerate(pattern):
+            if not token == EPSILON:
+                expanded_null_patterns = list(map(lambda x: x + [token], expanded_null_patterns))
+                if nullable(token):
+                    expanded_null_patterns += list(map(lambda x: x[:-1], expanded_null_patterns))
+
+        for expanded_null_pattern in expanded_null_patterns:
+            if expanded_null_pattern and not (
+                expanded_null_pattern in GRAMMAR[rule]
+                or len(expanded_null_pattern) == 1 and expanded_null_pattern[0] == rule
+            ):
+                GRAMMAR[rule].append(expanded_null_pattern)
+
+for rule, alternatives in GRAMMAR.items():                
+    for pattern in alternatives:
+        # Expand expected tokens
         for i, token in enumerate(pattern[:-1]):
             expand_expected(token, pattern[i+1])
 
-        # 2) Expand nullable patterns
-        null = list(map(lambda x: EPSILON if nullable(x) else x, pattern))
-        if not null == pattern:
-            GRAMMAR[rule].append(null)
-
-        # 3) Expand expected patterns 
+        # Expand expected patterns 
         for token in pattern:
             if not (rule, pattern) in EXPECTED_PATTERNS[token]: 
                 EXPECTED_PATTERNS[token].append((rule, pattern))

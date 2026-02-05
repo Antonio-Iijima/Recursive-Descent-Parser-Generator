@@ -17,7 +17,13 @@ def p_divide(expr):
     return expr[0]
 
 def p_factor(expr): 
-    return expr[1] if len(expr) == 3 else expr[0]
+    match len(expr):
+        case 3: return expr[1]
+        case 2: return -expr[1]
+        case _: return expr[0]
+
+def p_abs(expr):
+    return abs(expr[1])
 
 def p_idivide(expr): 
     return expr[0] // expr[2]
