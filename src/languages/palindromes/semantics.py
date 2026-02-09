@@ -1,1 +1,2 @@
-def p_s(expr): return "".join(expr)
+def p_s(expr): 
+    return "".join(expr)

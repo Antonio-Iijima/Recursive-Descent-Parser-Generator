@@ -1,8 +1,5 @@
 #require macro parentheses
--- #require macro spacing
-#require rule spacing
+#require macro spacing
 
 <SymbolExpr> ::=  x | y | z | <Parenthesized>[<SList>]
-<SList>      ::= <SymbolExpr> | <SymbolExpr> <COMMA> <SList>
--- <COMMA>      ::= <Spaced>[,]
-<COMMA>      ::= , <SPACES>
+<SList>      ::= <SymbolExpr> | <SymbolExpr> <Spaced>[,] <SList>

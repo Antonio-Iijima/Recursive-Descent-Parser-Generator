@@ -28,11 +28,14 @@ class Rule:
 def parse(expr: str) -> Rule:
     from AST import (
         is_expected, expected_patterns,
-        GRAMMAR, K, EXPECTED_TOKENS, EXPECTED_PATTERNS
+        GRAMMAR, K, EXPECTED_TOKENS, EXPECTED_PATTERNS, ACCEPT_NULL
     )
     from main import dFlag
 
     tokens = tokenize(expr)
+
+    # Accept empty strings immediately only if permitted by the grammar.
+    if tokens == [] and ACCEPT_NULL: return list(GRAMMAR.keys())[0]("")
 
     # For each step, there is a list of states (which is a list of tokens or nodes).
     current_states = [[]]
@@ -116,7 +119,10 @@ def parse(expr: str) -> Rule:
             
     # Filter for accepting states; if not found return None explicitly.
     acceptable_states = filterl(
-        lambda state: len(state) == 1 and isinstance(state[0], list(GRAMMAR.keys())[0]), 
+        lambda state: (
+            len(state) == 1 
+            and isinstance(state[0], list(GRAMMAR.keys())[0]) 
+        ), 
         current_states
     )
 

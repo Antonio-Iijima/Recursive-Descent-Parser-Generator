@@ -42,9 +42,10 @@ while args:
             tests = [
                 ("(x)", "(x)"),
                 ("(x, y)", "(x, y)"),
-                ("(x, y, (z))", "(x, y, (z))")
+                ("(x, y, (z))", "(x, y, (z))"),
+                ("(x , (y) , z)", "(x , (y) , z)")
             ]
-        case "palindromes1":
+        case "pal1":
             tests = [
                 ("a", "a"),
                 ("b", "b"),
@@ -53,7 +54,7 @@ while args:
                 ("aabbaa", "aabbaa"),
                 ("aaba", None),
             ]
-        case "palindromes2":
+        case "pal2":
             tests = [
                 ("a"*n, "a"*n) for n in range(0, 30, 5)
             ]

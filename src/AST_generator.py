@@ -145,16 +145,11 @@ def process_syntax(path: str) -> dict:
     return grammar
 
 
-def process_semantics(semantics: str) -> str:
-    """Current implementation does nothing."""
-    return semantics
-
-
 def show_grammar(grammar: dict) -> None:
     offset = max(len(p) for p in grammar)
 
     for p, r in grammar.items(): 
-        print(f"{p}{" " * (offset - len(p))} ::= {" | ".join("".join(s) for s in r)}")
+        print(f"<{p}>{" " * (offset - len(p))} ::= {" | ".join("".join(s) for s in r)}")
     
     return offset
 
@@ -237,7 +232,9 @@ EXPECTED_TOKENS = {{ token : [] for token in TOKENS }}
 
 EXPECTED_PATTERNS = {{ token : [] for token in TOKENS }}
 
-EPSILA = {{EPSILON}}
+EPSILA: set = {{EPSILON}}
+
+ACCEPT_NULL = {["ε"] in list(GRAMMAR.values())[0]}
 
 
 
@@ -391,7 +388,6 @@ from parser import Rule
 def evaluate(AST):    
     return (
         globals().get(AST.fname, lambda x: None)(list(map(evaluate, AST.children))) if isinstance(AST, Rule)
-        else "" if AST == None 
         else AST
     )
 """
