@@ -80,6 +80,7 @@ Recursively build a complete set of grammar rules from path.
 
 def process_syntax(path: str) -> dict:
     from rich import print
+    from main import dFlag
 
     grammar = {}
     macros = {}
@@ -87,6 +88,8 @@ def process_syntax(path: str) -> dict:
     
     prepend, append = build_grammar(path)
     syntax = prepend + append
+
+    if dFlag: print(syntax)
 
     REQUIREMENTS.remove(path)
     
@@ -245,7 +248,7 @@ ACCEPT_NULL = {["ε"] in list(GRAMMAR.values())[0]}
 def retype(x): return type(x) if isinstance(x, Rule) else x
 
 
-def expected_patterns(x): return EXPECTED_PATTERNS[retype(x)]
+def expected_patterns(x) -> tuple[Rule, int, list]: return EXPECTED_PATTERNS[retype(x)]
 
 
 def nullable(x): return retype(x) in EPSILA
@@ -290,7 +293,7 @@ del count
 for rule, alternatives in GRAMMAR.items():
     GRAMMAR[rule] = []
     
-    for pattern in alternatives:
+    for variant, pattern in enumerate(alternatives):
 
         # Expand nullable patterns
         expanded_null_patterns = [[]]
@@ -305,19 +308,24 @@ for rule, alternatives in GRAMMAR.items():
                 expanded_null_pattern in GRAMMAR[rule]
                 or len(expanded_null_pattern) == 1 and expanded_null_pattern[0] == rule
             ):
-                GRAMMAR[rule].append(expanded_null_pattern)
+                GRAMMAR[rule].append([variant] + expanded_null_pattern)
 
 # Only construct expected tokens/patterns with the full expansion of the grammar
 for rule, alternatives in GRAMMAR.items():                
     for pattern in alternatives:
-        # Expand expected tokens
-        for i, token in enumerate(pattern[:-1]):
-            expand_expected(token, pattern[i+1])
+        variant = pattern.pop(0)
 
         # Expand expected patterns 
         for token in pattern:
-            if not (rule, pattern) in EXPECTED_PATTERNS[token]: 
-                EXPECTED_PATTERNS[token].append((rule, pattern))
+            if not (rule, variant, pattern) in EXPECTED_PATTERNS[token]: 
+                EXPECTED_PATTERNS[token].append((rule, variant, pattern))
+
+for rule, alternatives in GRAMMAR.items():                
+    for pattern in alternatives:
+    
+        # Expand expected tokens
+        for i, token in enumerate(pattern[:-1]):
+            expand_expected(token, pattern[i+1])
 """
 
 
@@ -385,9 +393,20 @@ from parser import Rule
 
 
 
-def evaluate(AST):    
+def null(x): return None
+
+
+def get_function(AST):
     return (
-        globals().get(AST.fname, lambda x: None)(list(map(evaluate, AST.children))) if isinstance(AST, Rule)
+        globals().get(AST.fname + AST.variant)
+        or globals().get(AST.fname)
+        or null
+    )
+
+
+def evaluate(AST):
+    return (
+        get_function(AST)(list(map(evaluate, AST.children))) if isinstance(AST, Rule)
         else AST
     )
 """

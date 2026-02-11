@@ -33,24 +33,29 @@ def split_pattern(prod: str) -> list:
     
     out = []
     is_nonterminal = False
-    is_param = False
-    nextWord = False
 
-    for c in list(prod.strip()):
-        
-        if not c: continue
+    charlist = filterl(lambda x: x.strip(), prod)
 
-        is_nonterminal = (is_nonterminal or c == "<") and not c == ">"
-        is_param = (is_param or (c == "[")) and not (c == "]")
-        nextWord = (not out) or (
-            (not is_param) and (c == "<")
-        )
+    # Short circuit for empty list
+    if not charlist: return []
+    
+    # Preload first element; not included in loop
+    out.append(charlist[0])
 
-        if nextWord: out.append("")
+    for prev, curr in zip(charlist[:-1], charlist[1:]):
         
-        out[-1] += c.upper() if is_nonterminal else c
-        
-        if not is_param and c == ">": out.append("")
+        is_nonterminal = (is_nonterminal or prev == "<") and not curr == ">"
+
+        # Conditions to start a new word
+        if (
+            (prev == "]") # End of macro parameter
+            or (curr == "<" and not prev == "[") # Beginning of a non-parameter rule
+            or (prev == ">" and not curr == "]") # End of a non-parameter rule
+        ):
+            out.append("")
+
+
+        out[-1] += curr.upper() if is_nonterminal else curr
 
     out = [c.strip() for c in out if c.strip()]
 

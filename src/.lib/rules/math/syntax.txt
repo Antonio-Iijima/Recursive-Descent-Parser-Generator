@@ -1,6 +1,6 @@
 #require macro spacing
 
-<Operator> ::= <OP_Add> | <OP_Subtract> | <OP_Multiply> | <OP_FDivide> | <OP_IDivide> | <OP_Exp>
+-- <Operator> ::= <OP_Add> | <OP_Subtract> | <OP_Multiply> | <OP_FDivide> | <OP_IDivide> | <OP_Exp>
 
 #set alt φ
 <OP_Add>        ::= <SPACED>[+]

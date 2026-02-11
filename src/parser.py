@@ -4,24 +4,31 @@ from rich import print
 
 
 class Rule:
-    def __init__(self, children):
+    def __init__(self, variant: int, children: list):
         from AST import EPSILON, SIGMA
 
         self.__name__ = type(self).__name__
         self.fname = f"p_{self.__name__.lower()}"
-        self.children = [{EPSILON : "", SIGMA : " "}.get(c, c) for c in children]
+        self.variant = str(variant)
+        self.str = [{EPSILON : "", SIGMA : " "}.get(c, c) for c in children]
+        self.children = [ c for c in children if not c in {EPSILON, SIGMA} ]
+        self._hash = self.__name__.__hash__() + sum(map(hash, self.children))
 
+
+    def __eq__(self, value: 'Rule'):
+        return type(self) == type(value) and self.__hash__() == value.__hash__()
         
+
     def __hash__(self):
-        return self.__name__.__hash__()
+        return self._hash
 
-        
+
     def __repr__(self):
         return f"{self.__name__}"
             
                 
     def __str__(self):
-        return "".join(map(str, self.children))
+        return "".join(map(str, self.str))
 
 
 
@@ -33,7 +40,7 @@ def parse(expr: str) -> Rule:
     from main import dFlag
 
     tokens = tokenize(expr)
-
+    
     # Accept empty strings immediately only if permitted by the grammar.
     if tokens == [] and ACCEPT_NULL: return list(GRAMMAR.keys())[0]("")
 
@@ -74,16 +81,15 @@ def parse(expr: str) -> Rule:
             
             if dFlag: print("State", state)
 
-            for (rule, pattern) in expected_patterns(state[-1]):
-
-                # We want to ignore epsilons in the pattern since epsilon is not a readable token.
+            for (rule, variant, pattern) in expected_patterns(state[-1]):
+                
                 idx = len(state) - len(pattern)
-
                 reducible = state[idx:]
 
                 # Reduce only if pattern matches the reducible part of the state.
                 if compare(reducible, pattern):
-                    reduced = state[:idx] + [rule(reducible)]
+
+                    reduced = state[:idx] + [rule(variant, reducible)]
 
                     if dFlag: print("Reduced", reduced)
 

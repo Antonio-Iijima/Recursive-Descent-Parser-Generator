@@ -1,5 +1,7 @@
-def p_symbolexpr(expr): 
-    return expr[0] if len(expr) == 1 else f"({expr[1]})"
-
-def p_slist(expr):
-    return "".join({None: " "}.get(c, c) for c in expr)
+def p_symbolexpr(v, expr): 
+    match v:
+        case 3: return f"({expr[0]})"
+        case _: return expr[0]
+    
+def p_slist(v, expr):
+    return "".join(expr)

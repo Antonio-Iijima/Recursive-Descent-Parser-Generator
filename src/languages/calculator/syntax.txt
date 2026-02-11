@@ -1,2 +1,2 @@
 #require rule math.infix
--- #require rule math.prefix
+--#require rule math.prefix
