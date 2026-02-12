@@ -16,7 +16,7 @@ class Rule:
 
 
     def __eq__(self, value: 'Rule'):
-        return type(self) == type(value) and self.__hash__() == value.__hash__()
+        return isinstance(value, Rule) and self.__hash__() == value.__hash__()
         
 
     def __hash__(self):
