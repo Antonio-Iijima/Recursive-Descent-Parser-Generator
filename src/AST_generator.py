@@ -1,10 +1,11 @@
 from utils import *
+from datatypes import OrderedSet
 
 from os.path import exists
 
 
 
-REQUIREMENTS = set()
+REQUIREMENTS = OrderedSet()
 DEFAULTS = {
     "alt" : "|",
     "lbrace" : "<",
@@ -91,7 +92,7 @@ def process_syntax(path: str) -> dict:
 
     if dFlag: print(syntax)
 
-    REQUIREMENTS.remove(path)
+    REQUIREMENTS.pop(path)
     
     for rule, alternatives in syntax:
         
@@ -182,7 +183,7 @@ Generates an AST from a context-free grammar.
 
 
 
-from parser import Rule
+from datatypes import Rule
 
 
 
@@ -313,7 +314,7 @@ for rule, alternatives in GRAMMAR.items():
 
 # Only construct expected tokens/patterns with the full expansion of the grammar
 for rule, alternatives in GRAMMAR.items():                
-    for pattern in sorted(alternatives, key=len):
+    for pattern in alternatives:
         variant = pattern.pop(0)
 
         # Expand expected patterns 
@@ -352,7 +353,7 @@ def generate_eval(main_path: str) -> str:
 
     
 
-from parser import Rule
+from datatypes import Rule
 """
     
     

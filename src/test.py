@@ -7,8 +7,8 @@ from time import time
 args = argv[2:]
 
 while args:
-    match args.pop(0):
-        case "calc1":
+    match argv[1].split("/")[-2] + args.pop(0):
+        case "calculator1":
             tests = [
                 ("123", 123),
                 ("1 + 2 + 3", 6),
@@ -26,13 +26,13 @@ while args:
                 ("1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1", 10),
                 ("1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1", 1)
             ]
-        case "calc2":
+        case "calculator2":
             from sys import setrecursionlimit
             setrecursionlimit(2**31-1)
             tests = [
                 (" + ".join(["1"]*n), n) for n in range(100, 901, 100)
             ]
-        case "calc3":
+        case "calculator3":
             N = 367
             tests = [
                 ("".join(map(str, range(N))), int("".join(map(str, range(N))))),
@@ -45,7 +45,7 @@ while args:
                 ("(x, y, (z))", "(x, y, (z))"),
                 ("(x , (y) , z)", "(x , (y) , z)")
             ]
-        case "pal1":
+        case "palindromes1":
             tests = [
                 ("a", "a"),
                 ("b", "b"),
@@ -54,7 +54,7 @@ while args:
                 ("aabbaa", "aabbaa"),
                 ("aaba", None),
             ]
-        case "pal2":
+        case "palindromes2":
             tests = [
                 ("a"*n, "a"*n) for n in range(0, 30, 5)
             ]

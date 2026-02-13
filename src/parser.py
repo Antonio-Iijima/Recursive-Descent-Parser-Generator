@@ -1,47 +1,8 @@
 from utils import *
+from datatypes import *
+
 from rich import print
 
-
-
-class Rule:
-    def __init__(self, variant: int, children: list):
-        from AST import EPSILON, SIGMA
-
-        self.__name__ = type(self).__name__
-        self.fname = f"p_{self.__name__.lower()}"
-        self.variant = variant
-        self.str = [{EPSILON : "", SIGMA : " "}.get(c, c) for c in children]
-        self.children = [c for c in children if not c in {EPSILON, SIGMA}]
-        self._hash = self.__name__.__hash__() + sum(child.__hash__() for child in self.children)
-        
-
-    def __eq__(self, other: 'Rule'):
-        return isinstance(other, Rule) and self.__hash__() == other.__hash__()
-        
-
-    def __hash__(self):
-        return self._hash
-
-
-    def __repr__(self):
-        return f"{self.__name__}"
-            
-                
-    def __str__(self):
-        return "".join(map(str, self.str))
-
-
-
-class State(list):    
-    def __init__(self, iterable = None):
-        iterable = iterable or []
-        super().__init__(iterable)
-        self._hash = sum(token.__hash__() for token in iterable)
-
-
-    def __hash__(self) -> int:
-        return self._hash
-    
 
 
 def parse(expr: str) -> tuple[Rule, int]:
@@ -62,8 +23,11 @@ def parse(expr: str) -> tuple[Rule, int]:
     # Everything is a dict now, because they are
     # a) fast
     # b) ordered 
-    current_states: dict[State, None] = dict.fromkeys((State(),))
-    future_states: dict[State, None] = {}
+    current_states = OrderedSet((State(),))
+    future_states = OrderedSet()
+
+    # Memoize everything; to be implemented
+    memoized: dict[str, list] = {}
 
     if dFlag:
         print("EXPECTED TOKENS:")
@@ -103,7 +67,7 @@ def parse(expr: str) -> tuple[Rule, int]:
         # adding valid future states to the list as appropriate 
         while reducible_states:
 
-            state = reducible_states.popitem()[0]
+            state = reducible_states.remove()
             
             if dFlag: print("State", state)
 
@@ -119,7 +83,7 @@ def parse(expr: str) -> tuple[Rule, int]:
 
                     if dFlag: print("Reduced", reduced)
 
-                    reducible_states[reduced] = None
+                    reducible_states.add(reduced)
                     
                     # Accept as future state if the following:
                     # 1) EOI (no next token) or next token is expected
@@ -134,13 +98,14 @@ def parse(expr: str) -> tuple[Rule, int]:
                         )
                     ):
                         if dFlag: print("Future", reduced)
-                        future_states[reduced] = None
-                
-                # If the current pattern does not match, but could match if given more tokens.
-                elif state[-1] in pattern: future_states[state] = None
-                        
-        current_states, future_states = future_states or current_states, {}
+                        future_states.add(reduced)
 
+                # If the current pattern does not match, but could match if given more tokens.
+                elif state[-1] in pattern: future_states.add(state)
+                        
+        current_states, future_states = future_states or current_states, OrderedSet()
+
+        print("Future states", current_states)
         if dFlag: 
             print("Future states", current_states)
             print()
