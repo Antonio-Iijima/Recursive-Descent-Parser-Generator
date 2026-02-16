@@ -4,6 +4,12 @@ g_markers = {}
  
 def lookup(var): return g_env(var)
 
+def p_program(expr):
+    try: 
+        return expr(0)
+    except Exception as e:
+        print(e.args[0])
+
 def p_assignment(expr):
     g_env[expr(1)] = expr(3)
 
@@ -18,8 +24,7 @@ def p_if_then_else(expr):
         return expr(6)
     
 def p_return(expr):
-    print(expr(1))
-    exit()
+    raise Exception(expr(1))
 
 def p_string(expr):
     return expr(1)

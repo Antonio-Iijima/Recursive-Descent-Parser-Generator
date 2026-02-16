@@ -164,3 +164,14 @@ def tokenize(string: str) -> list:
             raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
 
     return tokens
+
+
+def validate(parsed: Parsed, solution: any) -> str:
+    from eval import evaluate
+    
+    if str(parsed) == solution: return solution
+    
+    result = evaluate(parsed.AST)
+    
+    if result == solution: return solution
+    raise ValueError(f"value of {parsed} should be {solution}, but received {result or "False|None"}")
