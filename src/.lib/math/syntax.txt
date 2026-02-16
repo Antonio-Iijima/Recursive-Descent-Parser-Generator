@@ -6,6 +6,7 @@
 <OP_IDivide>    ::= //
 <OP_Exp>        ::= **
 <OP_PIPE>       ::= |
+<OP_Modulo>     ::= %
 <LParen>        ::= (
 <RParen>        ::= )
 #set alt default

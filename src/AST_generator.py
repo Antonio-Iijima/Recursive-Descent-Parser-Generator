@@ -97,11 +97,20 @@ def process_syntax(path: str) -> dict:
     return grammar
 
 
-def show_grammar(grammar: dict) -> None:
+def show_grammar(grammar: dict, max_lines: int = 7) -> None:
     offset = max(len(p) for p in grammar)
 
-    for p, r in grammar.items(): 
-        print(f"<{p}>{" " * (offset - len(p))} ::= {" | ".join("".join(s) for s in r)}")
+    for rule, alternatives in grammar.items(): 
+        for i, pattern in enumerate(alternatives):
+            if i == 0:
+                print(f"<{rule}>{" " * (offset - len(rule))} ::= {" ".join(pattern)}")
+            else:
+                print(" "*(offset+5), end='')
+                if i < max_lines:
+                    print("| " + " ".join(pattern))
+                else:
+                    print("...")
+                    break
     
     return offset
 
@@ -171,7 +180,8 @@ GRAMMAR = {{
 ##### USEFUL VARIABLES #####
 
 
-FIRST = list(GRAMMAR)[0]
+
+FIRST = {list(GRAMMAR)[0]}
 
 K = {max(map(len, (pattern for alternatives in GRAMMAR.values() for pattern in alternatives)))}
 
@@ -338,6 +348,7 @@ from datatypes import Rule
 
     eval_text += f"""
 
+    
 
 ##### EVAL #####
 

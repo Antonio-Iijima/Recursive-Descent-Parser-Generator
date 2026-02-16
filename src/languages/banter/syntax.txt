@@ -1,0 +1,22 @@
+#require alphanum
+
+<program>        ::= <statement> | <expression>
+<statement>      ::= <assignment> | <conditional> | <return> | <arithmetic>
+<assignment>     ::= let <label> be <expression>
+<label>          ::= <Word>
+<conditional>    ::= <if_then> | <if_then_else>
+<if_then>        ::= if <condition> <COMMA> then <statement>
+<if_then_else>   ::= if <condition> <COMMA> then <statement> else <statement>
+<condition>      ::= 0 | 1
+<return>         ::= return <expression>
+<expression>     ::= <arithmetic> | <String>
+<arithmetic>     ::= <Add> | <Subtract> | <term>
+<add>            ::= <arithmetic> <OP_Add> <term>
+<Subtract>       ::= <arithmetic> <OP_Subtract> <term>
+<term>           ::= <Multiply> | <Divide> | <OP_Subtract> <term> | <Modulo> | <Factor>
+<Multiply>       ::= <term> <OP_Multiply> <factor>
+<Divide>         ::= <term> <OP_FDivide> <factor>
+<Modulo>         ::= <term> <OP_Modulo> <Factor>
+<factor>         ::= <LParen> <arithmetic> <RParen> | <Number> | <Variable>
+<Variable>       ::= <label>
+<String>         ::= <QUOTATION> <Word> <QUOTATION>

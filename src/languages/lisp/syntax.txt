@@ -1,9 +1,0 @@
-#require rule math.prefix, alphanum
-#require macro parentheses, spacing
-
-<Program>   ::= <Atom> | <List>
-<Atom>      ::= <Number> | <Symbol>
-<Symbol>    ::= <Operator> | <Id>
-<Id>        ::= <Word>
-<List>      ::= <Parenthesized>[<Atoms>]
-<Atoms>     ::= <Atom> <Atoms> | ε

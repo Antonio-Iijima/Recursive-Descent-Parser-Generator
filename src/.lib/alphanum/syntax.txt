@@ -6,3 +6,5 @@
 <Alphanumeric>  ::= <Letter> | <Number>
 <!Letters>      ::= <Letter> | <Letter> <Letters>
 <Word>          ::= <Letters>
+<QUOTATION>     ::= "
+<COMMA>         ::= ,

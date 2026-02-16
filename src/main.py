@@ -22,6 +22,9 @@ iFlag and argv.remove("-i")
 dFlag = "-d" in argv 
 dFlag and argv.remove("-d")
 
+vFlag = "-v" in argv 
+vFlag and argv.remove("-v")
+
 if len(argv) == 1:
     print("Language folder not found.")
     quit()
@@ -36,5 +39,8 @@ from eval import evaluate
 if iFlag:
     for line in iter(lambda: input("> "), "quit"):
         if dFlag: start = time()
-        print(evaluate(parse(line).AST))
+        if vFlag:
+            print(evaluate(parse(line).AST))
+        else:
+            print(parse(line))
         if dFlag: print(f"Runtime: {time() - start}")

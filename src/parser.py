@@ -132,11 +132,13 @@ def parse(expr: str, state_limit: int = 2**10) -> Parsed:
         print()
         print(list(str(state) for state in acceptable_states))
 
-    return Parsed(expr, acceptable_states.pop(), max_states) if acceptable_states else Parsed(expr)
+    return Parsed(expr, acceptable_states.pop(), max_states) if acceptable_states else Parsed("ERROR: Parser terminated without any accepting states.")
 
 
 def tokenize(string: str) -> list:
     from AST import TERMINALS
+
+    original = string
 
     terminals = sorted(TERMINALS, reverse=True)
     tokens = []
@@ -153,6 +155,6 @@ def tokenize(string: str) -> list:
                 string = string.removeprefix(terminal)
                 break
 
-        else: raise SyntaxError(f"unrecognized token in input '{string}'; stopped at {tokens}")
+        else: raise SyntaxError(f"unrecognized token at index {len(tokens)} in input '{original}'")
 
     return tokens
