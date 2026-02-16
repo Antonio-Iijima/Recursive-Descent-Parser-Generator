@@ -144,6 +144,10 @@ def tokenize(string: str) -> list:
     tokens = []
     while string:
         for terminal in terminals:
+
+            if string.startswith("\n"):
+                string = string.removeprefix("\n")
+                break
             
             if string.startswith(" "):
                 tokens.append(" ")

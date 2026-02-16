@@ -7,7 +7,8 @@ def p_assignment(expr):
     g_env[expr(1)] = expr(3)
 
 def p_if_then(expr):
-    if expr(1): return expr(4)
+    if expr(1): 
+        return expr(4)
 
 def p_if_then_else(expr):
     if expr(1):
@@ -16,8 +17,26 @@ def p_if_then_else(expr):
         return expr(6)
     
 def p_condition(expr):
-    return bool(int(expr(0)))
+    return bool(expr(0))
     
+def p_le(expr):
+    return expr(0) < expr(2)
+    
+def p_leq(expr):
+    return expr(0) <= expr(2)
+    
+def p_ge(expr):
+    return expr(0) > expr(2)
+    
+def p_geq(expr):
+    return expr(0) >= expr(2)
+    
+def p_eq(expr):
+    return expr(0) == expr(2)
+    
+def p_neq(expr):
+    return expr(0) != expr(2)
+
 def p_statement_list_1(expr):
     return expr
 

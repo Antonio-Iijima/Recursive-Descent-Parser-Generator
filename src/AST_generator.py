@@ -58,7 +58,7 @@ Recursively build a complete set of grammar rules from path.
                     rule, alternatives = line.split(symbols["production"])
                     rules.append((
                         rule.strip().upper(), 
-                        [split_pattern(pattern) for pattern in alternatives.split(symbols["alt"])]
+                        [split_pattern(pattern, symbols["lbrace"], symbols["rbrace"]) for pattern in alternatives.split(symbols["alt"])]
                     ))
                     
     return rules + dependency_rules
@@ -83,9 +83,16 @@ def process_syntax(path: str) -> dict:
         # Prep rule entry; if rule already exists, continue to add alternatives
         grammar[rule] = grammar.get(rule, [])
 
-        for pattern in alternatives:
-            # grammar[rule] = grammar.get(rule) + [pattern]
-            grammar[rule].append(pattern)
+        for pattern in alternatives: grammar[rule].append(pattern)
+
+        # Replace standalone terminals with nonterminals
+        # if len(pattern) > 1:
+        #     for i, token in enumerate(pattern):
+        #         if len(token) > 1 and not token[0::len(token)-1] == "<>":
+        #             new_rule = f"<T_{str(ordinal(token))}>"
+        #             pattern[i] = new_rule
+        #             if not new_rule in grammar:
+        #                 grammar[new_rule[1:-1]] = [token]
 
     for dependency in sorted(REQUIREMENTS): print(dependency)
     

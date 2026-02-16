@@ -85,8 +85,8 @@ while args:
         print("\nPARSED\n")
         
         for s, v in {
-            "Sentence" : str(parsed),
-            "AST" : parsed.AST,
+            # "Sentence" : str(parsed),
+            # "AST" : parsed.AST,
             "Eval" : validate(parsed, solution),
             "Max States" : parsed.max_states,
         }.items(): print(f"{s:10s} : {v}")

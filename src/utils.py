@@ -31,7 +31,7 @@ def embed_nonterminal(s: str) -> str:
     return s
 
 
-def split_pattern(prod: str) -> list:
+def split_pattern(prod: str, lbrace: str = "<", rbrace: str = ">") -> list:
     """Converts a string representation of a RH production rule into a list."""
 
     if not prod: return []
@@ -39,22 +39,28 @@ def split_pattern(prod: str) -> list:
     out = []
     is_nonterminal = False
 
-    charlist = filterl(lambda x: x.strip(), prod)
+    charlist = list(prod.strip())
 
     # Short circuit for empty list
     if not charlist: return []
-    
+
     # Preload first element; not included in loop
     out.append(charlist[0])
 
     for prev, curr in zip(charlist[:-1], charlist[1:]):
         
-        is_nonterminal = (is_nonterminal or prev == "<") and not curr == ">"
+        is_nonterminal = (is_nonterminal or prev == lbrace) and not (curr == rbrace)
 
         # Conditions to start a new word
-        if (curr == "<") or (prev == ">"): out.append("")
-            
-        out[-1] += curr.upper() if is_nonterminal else curr
+        if (
+            (curr == lbrace) 
+            or (prev == rbrace) 
+            or (curr == " ")
+        ) and not (out[-1] == ""): out.append("")
+        
+        if not curr == " ":
+            curr = {lbrace : "<", rbrace : ">"}.get(curr, curr)
+            out[-1] += curr.upper() if is_nonterminal else curr
 
     return out
 
@@ -66,3 +72,15 @@ def comparative(x):
 def compare(a: list, b: list) -> bool:
     """Check if all the elements of `a` and `b` match."""
     return len(a) == len(b) and all(comparative(x) == comparative(y) for x, y in zip(a, b))
+
+
+def get_input(prompt: str = "", s: str = "") -> str:
+    if s.endswith("\n"):
+        return s
+    try:
+        return get_input("." * (len(prompt)-1) + " ", s + "\n" + input(prompt))
+    except EOFError:
+        return ""
+
+def ordinal(s: str) -> int:
+    return sum(i * ord(c) for i, c in enumerate(s))

@@ -3,6 +3,7 @@
 
 
 from AST_generator import generate_AST
+from utils import get_input
 
 from os.path import abspath, exists
 from os import remove
@@ -37,7 +38,7 @@ from parser import parse
 from eval import evaluate
 
 if iFlag:
-    for line in iter(lambda: input("> "), "quit"):
+    for line in iter(lambda: get_input("</> "), "quit"):
         if dFlag: start = time()
         if vFlag:
             print(evaluate(parse(line).AST))
