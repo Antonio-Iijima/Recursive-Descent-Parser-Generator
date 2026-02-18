@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
                 start = time()
 
-                parsed = parse(test)
+                parsed = parse(test, dFlag=dFlag)
                 print("\nPARSED\n")
                 
                 for s, v in {
@@ -128,16 +128,20 @@ if __name__ == "__main__":
     else:
         for arg in argv[2:]:
             if exists(arg):
-                with open(arg) as file:
-                    for line in file.readlines():
-                        out = evaluate(parse(line).AST)
+                try:
+                    with open(arg) as file:
+                        out = evaluate(parse(file.read(), dFlag=dFlag).AST)
                         if out: print(out)
-
+                except Exception as e:
+                    if len(e.args) > 1 and e.args[0] == 0:
+                        print(e.args[1])
+                    else:
+                        raise e
         if iFlag:
-            for line in iter(lambda: get_input("</> "), "quit"):
-                if dFlag: start = time()
-                if vFlag:
-                    print(evaluate(parse(line).AST))
-                else:
-                    print(parse(line))
-                if dFlag: print(f"Runtime: {time() - start}")
+                for line in iter(lambda: get_input("</> "), "quit"):
+                    if dFlag: start = time()
+                    if vFlag:
+                        print(evaluate(parse(line, dFlag=dFlag).AST))
+                    else:
+                        print(parse(line))
+                    if dFlag: print(f"Runtime: {time() - start}")

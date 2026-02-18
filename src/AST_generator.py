@@ -83,7 +83,8 @@ def process_syntax(path: str) -> dict:
         # Prep rule entry; if rule already exists, continue to add alternatives
         grammar[rule] = grammar.get(rule, [])
 
-        for pattern in alternatives: 
+        for pattern in alternatives:
+            if rule.startswith("~"): pattern = ["INDENT", *pattern, "DEDENT"]
             grammar[rule].append(pattern)
 
             # Replace standalone terminals with nonterminals
@@ -157,13 +158,16 @@ from datatypes import Rule, StrictRule
 
 """
 
+    indentSensitive = False
     for (rule, alternatives) in GRAMMAR.items():
-        strictSpacing = rule.startswith("!")
-        name = rule[1:] if strictSpacing else rule
+        modifier = "Strict" if rule.startswith("!") else ""
+        
+        name = rule[1:] if (modifier or rule.startswith("~")) else rule
+        indentSensitive = (indentSensitive or (rule.startswith("~")))
 
         docstring = f"\n{" "*(len(name)+5)}| ".join(" ".join(pattern) for pattern in alternatives)
         AST_text += f"""
-class {embed_nonterminal(name)}({"Strict" if strictSpacing else ""}Rule): 
+class {embed_nonterminal(name)}({modifier}Rule): 
     '''```
 <{name}> ::= {docstring}
     ```'''
@@ -177,7 +181,7 @@ class {embed_nonterminal(name)}({"Strict" if strictSpacing else ""}Rule):
 
     
 GRAMMAR = {{
-    {",\n    ".join(f'''{embed_nonterminal(rule)}{" " * (offset - len(rule))} : [{
+    {",\n    ".join(f'''{embed_nonterminal(rule)}{" " * (offset - len(embed_nonterminal(rule)))} : [{
         ",".join(f"[{", ".join(embed_nonterminal(s) if is_nonterminal(s) else f"'{s}'" for s in alternative)}]"
                 for alternative in alternatives)}]'''
                     for rule, alternatives in GRAMMAR.items())}
@@ -206,6 +210,8 @@ EXPECTED_PATTERNS = {{ token : [] for token in TOKENS }}
 EPSILA: set = {{EPSILON}}
 
 ACCEPT_NULL = {["ε"] in list(GRAMMAR.values())[0]}
+
+INDENT_SENSITIVE = {indentSensitive}
 
 
 
@@ -362,7 +368,7 @@ from datatypes import Rule
 
 
 
-def null(x): return x(0) if x else None
+def null(x): return x(0) if isinstance(x, type(null)) else None
 
 
 def lazy(expr: list): return lambda i: evaluate(expr[i])

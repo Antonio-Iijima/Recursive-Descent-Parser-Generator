@@ -1,4 +1,6 @@
 class Rule:
+    next_indent = 0
+
     def __init__(self, variant: int, children: list):
         self.__name__ = type(self).__name__
         self.fname = f"p_{self.__name__.lower()}"
@@ -6,7 +8,16 @@ class Rule:
         self._str = " ".join(map(str, children))
         self.children = tuple(c for c in children if c)
         self._hash = self.__name__.__hash__() + sum(child.__hash__() for child in children)
-        
+
+
+    def tree(self, level: int = 0, space: str = "   "):
+        print(space*level + f" ({level}) " + self.__name__)
+        for c in self.children:
+            if isinstance(c, Rule):
+                c.tree(level+1)
+            else:
+                print(space*(level+1) + f" ({level+1}) " + c)
+
 
     def __eq__(self, other: 'Rule'):
         return isinstance(other, Rule) and self.__hash__() == other.__hash__()
@@ -67,6 +78,7 @@ class Parsed:
         self.sentence = sentence
         self.AST = AST
         self.max_states = max_states
+        # if AST: print(AST.tree())
 
 
     def get(self):

@@ -1,20 +1,30 @@
 #require alphanum
 #require math.basic
 
-<program>           ::= <statement> | <expression>
-<statement>         ::= <assignment> | <conditional> | <return> | <goto>
-<assignment>        ::= let <label> be <expression>
-<label>             ::= <Word>
-<conditional>       ::= <if_then> | <if_then_else>
-<if_then>           ::= if <comparison>, then <statement>
-<if_then_else>      ::= if <comparison>, then <statement> else <statement>
-<return>            ::= return <expression>
+<program>           ::= <statements> | <expression>
+
+<statements>        ::= <statement> | <statement> <statements>
+<statement>         ::= <assignment> | <conditional> | <return> | <goto> | <print>
+
 <expression>        ::= <mathexpr> | <String>
-<String>            ::= " <Word> "
-<number>            ::= <reference>
-<reference>         ::= <label>
+
+<assignment>        ::= let <word> be <expression>
+<String>            ::= "<Word>"
+
+<conditional>       ::= <if_then> | <if_then_else>
+<if_then>           ::= if <comparison>, then <block>
+<if_then_else>      ::= if <comparison>, then <block> else <block>
+<~block>            ::= <statements>
+
+<return>            ::= return <expression>
+
 <goto>              ::= <marker> | <jump>
-<jump>              ::= goto instruction <id>
-<id>                ::= <number> | <word>
+<marker>            ::= @ <number> <statements> 
+<number>            ::= <label> | <bool>
+<bool>              ::= True | False
+<label>             ::= <Word>
+<jump>              ::= goto instruction <number>
+
+<print>             ::= print <expression>
+
 <Letter>            ::= _
-<marker>            ::= @ <id> <program>

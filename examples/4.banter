@@ -1,0 +1,9 @@
+let wrong be 3
+let right be 7
+
+if wrong + wrong == right, then 
+    return True 
+else
+    return False
+
+return "this will never execute"

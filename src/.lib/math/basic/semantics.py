@@ -19,9 +19,6 @@ def p_modulo(expr):
 def p_factor_0(expr):
     return expr(1)
 
-def comparison(expr):
-    return bool(expr(0))
-
 def p_le(expr):
     return expr(0) < expr(2)
     

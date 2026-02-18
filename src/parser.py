@@ -5,7 +5,7 @@ from rich import print
 
 
 
-def parse(expr: str, state_limit: int = 2**10) -> Parsed:
+def parse(expr: str, state_limit: int = 2**10, dFlag: bool = False) -> Parsed:
     from AST import (
         expects, expected_patterns,
         FIRST, K, 
@@ -13,17 +13,17 @@ def parse(expr: str, state_limit: int = 2**10) -> Parsed:
         EXPECTED_PATTERNS, 
         ACCEPT_NULL
     )
-    from main import dFlag
 
     remaining_tokens = tokenize(expr)
     tokens = []
     
     # Accept empty strings immediately only if permitted by the grammar.
-    if remaining_tokens == [] and ACCEPT_NULL: return Parsed(expr, FIRST(0, []), 0)
+    if not remaining_tokens and ACCEPT_NULL: return Parsed(expr, FIRST(0, []), 0)
 
     # Everything is a dict now, because they are
     # a) fast
     # b) ordered 
+    # c) unique
     current_states = OrderedSet((State(),))
     future_states = OrderedSet()
 
@@ -47,15 +47,17 @@ def parse(expr: str, state_limit: int = 2**10) -> Parsed:
     max_states = 0
 
     # Track number of tokens since last space read.
-    counter = 0
+    tokensSinceLastSpace = 0
 
-    # For each token, advance a step and begin processing states.
+    # Process tokens sequentially, pursuing all valid shift/reduce paths in parallel.
     while remaining_tokens:
         token = remaining_tokens.pop(0)
 
-        # Ignore spaces in input sentence, but track them.
-        if token == " ": counter = 0; continue
-        counter += 1
+        if token == " ": 
+            tokensSinceLastSpace = 0
+            continue
+        else: 
+            tokensSinceLastSpace += 1
 
         # Otherwise set up to process states at this token
         tokens.append(token)
@@ -78,7 +80,7 @@ def parse(expr: str, state_limit: int = 2**10) -> Parsed:
             for (rule, variant, pattern) in expected_patterns(state[-1]):
 
                 # Strict rules cannot include spaces
-                if issubclass(rule, StrictRule) and counter < len(pattern): continue
+                if issubclass(rule, StrictRule) and tokensSinceLastSpace < len(pattern): continue
                 
                 idx = len(state) - len(pattern)
                 reducible = state[idx:]
@@ -109,7 +111,6 @@ def parse(expr: str, state_limit: int = 2**10) -> Parsed:
 
                 # If the current pattern does not match, but could match if given more tokens.
                 elif state[-1] in pattern: future_states.add(state)
-
         
         max_states = max(max_states, len(future_states))
         if max_states > state_limit: raise RuntimeError(f"Too many states to consider: {max_states}")
@@ -136,26 +137,54 @@ def parse(expr: str, state_limit: int = 2**10) -> Parsed:
 
 
 def tokenize(string: str) -> list:
-    from AST import TERMINALS
+    from AST import TERMINALS, INDENT_SENSITIVE
+    INDENT = "   "
+    prev_indent = 0
+    curr_indent = 0
 
-    original = string
+    if INDENT_SENSITIVE:
+        lines = string.splitlines()
+        indented = [""]*len(lines)
 
-    terminals = sorted(TERMINALS, reverse=True)
+        for i, line in enumerate(lines):
+            while line.startswith(INDENT):
+                line = line.removeprefix(INDENT)
+                curr_indent += 1
+
+            diff = curr_indent - prev_indent
+            while diff > 0:
+                indented[i] += "INDENT"
+                diff -= 1
+            
+            while diff < 0:
+                indented[i] += "DEDENT"
+                diff += 1
+
+            indented[i] += line
+            prev_indent, curr_indent = curr_indent, 0
+            
+        string = " ".join(indented)
+
+    original = string = string.strip()
+
+    terminals = sorted(TERMINALS.difference({""}), reverse=True)
     tokens = []
+    comment = False
 
     while string:        
+        comment = (comment or string.startswith("#")) and not (string.startswith("\n"))
+        
+        if comment: 
+            string = string[1:]
+            continue
+        
+        if string.startswith(" "):
+            tokens.append(" ")
+            string = string.removeprefix(" ")
+            continue
+
         for terminal in terminals:
-
-            if string.startswith("\n"):
-                string = string.removeprefix("\n")
-                break
-            
-            if string.startswith(" "):
-                tokens.append(" ")
-                string = string.removeprefix(" ")
-                break
-
-            if string.startswith(terminal) and not terminal == "":
+            if string.startswith(terminal):
                 tokens.append(terminal)
                 string = string.removeprefix(terminal)
                 break

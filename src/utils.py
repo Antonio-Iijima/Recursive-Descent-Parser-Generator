@@ -24,8 +24,8 @@ def is_terminal(prod: str) -> bool:
 
 def embed_nonterminal(s: str) -> str:
     if is_nonterminal(s):
-        s = s[1:-1]
-    if s.startswith("!"):
+        s = s[1:-1]    
+    elif s.startswith("!") or s.startswith("~"):
         s = s[1:]
         
     return s
