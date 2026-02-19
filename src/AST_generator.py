@@ -138,7 +138,7 @@ Generates an AST from a context-free grammar.
     
     offset = show_grammar(GRAMMAR)
 
-    TERMINALS = set(
+    TERMINALS = OrderedSet(
         token
                 for alternatives in GRAMMAR.values()
             for pattern in alternatives
@@ -199,7 +199,9 @@ K = {max(map(len, (pattern for alternatives in GRAMMAR.values() for pattern in a
 
 EPSILON = "ε"
 
-TERMINALS = {TERMINALS}
+TERMINALS = {{
+   {",\n   ".join((f"'{t}'" for t in sorted(TERMINALS, key=len, reverse=True)))}
+}}
 
 TOKENS = TERMINALS.union(GRAMMAR.keys())
 
@@ -326,6 +328,7 @@ def generate_eval(main_path: str) -> str:
     
 
 from datatypes import Rule
+from parser import parse
 """
     
     
@@ -387,6 +390,17 @@ def evaluate(AST: Rule):
         get_function(AST)(lazy(AST.children)) if isinstance(AST, Rule)
         else AST
     )
+
+
+def interpret(string: str, dFlag: bool) -> any:
+    try:
+        out = evaluate(parse(string, dFlag=dFlag).AST)
+        if out: print(out)
+    except Exception as e:
+        if len(e.args) > 1 and e.args[0] == 0:
+            print(e.args[1])
+        else:
+            raise e
 """
 
     return eval_text

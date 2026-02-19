@@ -1,6 +1,4 @@
 class Rule:
-    next_indent = 0
-
     def __init__(self, variant: int, children: list):
         self.__name__ = type(self).__name__
         self.fname = f"p_{self.__name__.lower()}"

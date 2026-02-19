@@ -43,7 +43,7 @@ if __name__ == "__main__":
     print()
 
     from parser import parse
-    from eval import evaluate
+    from eval import interpret
 
     if tFlag:
         from parser import validate
@@ -128,20 +128,13 @@ if __name__ == "__main__":
     else:
         for arg in argv[2:]:
             if exists(arg):
-                try:
-                    with open(arg) as file:
-                        out = evaluate(parse(file.read(), dFlag=dFlag).AST)
-                        if out: print(out)
-                except Exception as e:
-                    if len(e.args) > 1 and e.args[0] == 0:
-                        print(e.args[1])
-                    else:
-                        raise e
+                with open(arg) as file:
+                    interpret(file.read(), dFlag=dFlag)
         if iFlag:
                 for line in iter(lambda: get_input("</> "), "quit"):
                     if dFlag: start = time()
                     if vFlag:
-                        print(evaluate(parse(line, dFlag=dFlag).AST))
+                        interpret(line, dFlag)
                     else:
                         print(parse(line))
                     if dFlag: print(f"Runtime: {time() - start}")

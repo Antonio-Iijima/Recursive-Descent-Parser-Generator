@@ -149,7 +149,7 @@ def tokenize(string: str) -> list:
 
     # Remove commented lines
     lines = [line for line in string.splitlines() if not line.startswith("#")]
-    
+
     if INDENT_SENSITIVE:
         indented = [""]*len(lines)
 
