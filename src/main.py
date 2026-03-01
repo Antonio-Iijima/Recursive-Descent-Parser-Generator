@@ -2,7 +2,7 @@
 
 
 
-from AST_generator import generate_AST
+from AST_generator import compile_language
 from utils import get_input
 
 from os.path import abspath, exists
@@ -34,14 +34,14 @@ tFlag and argv.remove("-t")
 cFlag = "-c" in argv
 cFlag and argv.remove("-c")
 
+
+
 if __name__ == "__main__":
     argv = argv[1:]
 
     if cFlag: 
         LANGUAGE = abspath(argv.pop(0))
-        print()
-        generate_AST(LANGUAGE)
-        print()
+        compile_language(LANGUAGE)
     
     else:
         from AST import LANGUAGE

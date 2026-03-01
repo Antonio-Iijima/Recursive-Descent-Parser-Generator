@@ -2,8 +2,7 @@
 
 # Dependencies:
 # sudo apt install patchelf
-# pip install nuitka
-# pip install zstandard
+# See .requirements for python venv dependencies
 
 clear
 python3 main.py -c $1

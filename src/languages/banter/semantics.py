@@ -1,11 +1,18 @@
 g_env = {}
 g_markers = {}
 
- 
-def p_statements_0(expr):
+
+
+#! <statement> ::= <assignment> NEWLINE | <conditional> NEWLINE | <return> NEWLINE | <goto> NEWLINE | <print> NEWLINE 
+def p_statement(expr):
+    expr(0)    
+
+
+def p_statement_list_0(expr):
     expr(0)
     
-def p_statements_1(expr):
+#! <statement_list> ::= <statement> | <statement> NEWLINE <statement_list> 
+def p_statement_list_1(expr):
     expr(0)
     expr(1)
 
@@ -18,18 +25,22 @@ def p_string(expr):
     return expr(1)
 
 
+#! <if_then> ::= if <comparison>, then NEWLINE <block>
 def p_if_then(expr):
     if expr(1): 
         expr(4)
 
+#! <if_then_else> ::= if <comparison>, then NEWLINE <block> else NEWLINE <block>
 def p_if_then_else(expr):
     if expr(1):
         expr(4)
     else: 
         expr(6)
 
+#! <block> ::= INDENT <statement_list> DEDENT
 def p_block(expr):
     return expr(1)
+
 
 def p_return(expr):
     raise Exception(0, expr(1))

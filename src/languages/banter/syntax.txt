@@ -1,9 +1,9 @@
 #require alphanum
 #require math.basic
 
-<program>           ::= <statements> | <expression>
+<program>           ::= <statement_list> | <expression>
 
-<statements>        ::= <statement> | <statement> <statements>
+<statement_list>    ::= <statement> | <statement> <statement_list>
 <statement>         ::= <assignment> | <conditional> | <return> | <goto> | <print>
 
 <expression>        ::= <mathexpr>
@@ -15,7 +15,7 @@
 <conditional>       ::= <if_then> | <if_then_else>
 <if_then>           ::= if <comparison>, then <block>
 <if_then_else>      ::= if <comparison>, then <block> else <block>
-<~block>            ::= <statements>
+<block>             ::= <statement_list>
 
 <return>            ::= return <expression>
 

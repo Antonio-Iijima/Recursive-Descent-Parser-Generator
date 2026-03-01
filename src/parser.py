@@ -9,14 +9,16 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
         FIRST, K, 
         EXPECTED_TOKENS,
         EXPECTED_PATTERNS, 
-        ACCEPT_NULL
+        ACCEPT_NULL,
+        IGNORED,
+        NEWLINE_SENSITIVE
     )
 
     remaining_tokens = tokenize(expr)
     tokens = []
 
     # Accept empty strings immediately only if permitted by the grammar.
-    if all(t == " " for t in remaining_tokens) and ACCEPT_NULL: return Parsed(expr, FIRST(0, []), 0)
+    if (not remaining_tokens) and ACCEPT_NULL: return Parsed(expr, FIRST(0, []), 0)
 
     current_states = OrderedSet((State(),))
     future_states = OrderedSet()
@@ -47,9 +49,10 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
     while remaining_tokens:
         token = remaining_tokens.pop(0)
 
-        if token == " ": 
+        if token in (" ", "\n"):
             tokensSinceLastSpace = 0
-            continue
+            if not (NEWLINE_SENSITIVE and token == "\n"):
+                continue
         else: 
             tokensSinceLastSpace += 1
 
@@ -139,9 +142,9 @@ def tokenize(string: str) -> list:
     
     lines = indent(INDENT, string.splitlines()) if INDENT_SENSITIVE else string.splitlines()
     
-    original = string = "".join((line for line in lines if (not line.strip().startswith("#")) and line.strip())).strip()
+    original = string = "\n".join((line for line in lines if line.strip())).strip() + "\n"
 
-    terminals = sorted(TERMINALS.difference({""}), reverse=True)
+    terminals = sorted(TERMINALS, reverse=True)
     tokens = []
     comment = False
 
@@ -150,11 +153,6 @@ def tokenize(string: str) -> list:
         
         if comment: 
             string = string[1:]
-            continue
-        
-        if string.startswith(" "):
-            tokens.append(" ")
-            string = string.removeprefix(" ")
             continue
 
         for terminal in terminals:
@@ -165,9 +163,10 @@ def tokenize(string: str) -> list:
 
         else: 
             raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
-
+    
+    print(tokens)
     return tokens
-
+ 
 
 def indent(INDENT: str, lines: list) -> list:
     indented = []
@@ -206,6 +205,6 @@ def indent(INDENT: str, lines: list) -> list:
 
 def get_next_token(remaining: list) -> str|None:
     for t in remaining:
-            if not t == " ":
-                return t
+        if not t == " ":
+            return t
     return None

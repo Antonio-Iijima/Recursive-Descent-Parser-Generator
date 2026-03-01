@@ -1,4 +1,5 @@
 from io import TextIOWrapper
+from datatypes import Nonterminal
 
 
 
@@ -10,10 +11,6 @@ def preprocess_text(text: TextIOWrapper) -> list[str]:
     return [line for line in text.read().splitlines() if line and not line.startswith("--")]
 
 
-def filterl(f, x): 
-    return list(filter(f, x))
-
-
 def is_nonterminal(prod: str) -> bool: 
     return isinstance(prod, str) and prod.startswith("<") and prod.endswith(">")
 
@@ -22,20 +19,17 @@ def is_terminal(prod: str) -> bool:
     return not is_nonterminal(prod)
 
 
-def embed_nonterminal(s: str) -> str:
-    if is_nonterminal(s):
-        s = s[1:-1]    
-    while s[0] in ("!", "~"):
-        s = s[1:]
-        
-    return s
-
-
 def split_pattern(prod: str, lbrace: str = "<", rbrace: str = ">") -> list:
-    """Converts a string representation of a RH production rule into a list."""
+    """Converts a string representation of a single production rule pattern into a list."""
 
     if not prod: return []
     
+    remap = {
+        "NEWLINE" : "\\n",
+        "INDENT"  : "INDENT",
+        "DEDENT"  : "DEDENT",
+    }
+
     out = []
     is_nonterminal = False
 
@@ -62,7 +56,9 @@ def split_pattern(prod: str, lbrace: str = "<", rbrace: str = ">") -> list:
             curr = {lbrace : "<", rbrace : ">"}.get(curr, curr)
             out[-1] += curr.upper() if is_nonterminal else curr
 
-    return out
+    pattern = Nonterminal.update_modifiers([ remap.get(token, token) for token in out ])
+
+    return pattern
 
 
 def comparative(x): 
@@ -85,3 +81,21 @@ def get_input(prompt: str = "", s: str = "") -> str:
 
 def ordinal(s: str) -> int:
     return abs(hash(s)%100000)
+
+
+def show_grammar(grammar: dict, max_lines: int = 7) -> None:
+    offset = max(len(p) for p in grammar)
+
+    for rule, alternatives in grammar.items(): 
+        for i, pattern in enumerate(alternatives):
+            if i == 0:
+                print(f"<{rule}>{" " * (offset - len(rule))} ::= {" ".join(pattern)}")
+            else:
+                print(" "*(offset+5), end='')
+                if i < max_lines:
+                    print("| " + " ".join(pattern))
+                else:
+                    print("...")
+                    break
+    
+    return offset
