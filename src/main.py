@@ -46,7 +46,7 @@ if __name__ == "__main__":
     else:
         from AST import LANGUAGE
     
-        print(f"Using compiled language: {LANGUAGE.rsplit("/")[-1]}.")
+        print(f"Language: {LANGUAGE.rsplit("/")[-1]}.")
 
 
     if tFlag:

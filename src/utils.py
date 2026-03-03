@@ -99,3 +99,34 @@ def show_grammar(grammar: dict, max_lines: int = 7) -> None:
                     break
     
     return offset
+
+
+def regularize(path, sep="::="):
+    with open(path) as file:
+        text = file.readlines()
+    
+    offset = 0
+
+    for i, line in enumerate(s.strip() for s in text):
+        text[i] = [s.strip() for s in line.split(sep)]
+        if len(text[i]) == 2:
+            offset = max(offset, len(text[i][0]))
+
+    for i, line in enumerate(text):
+        if isinstance(line, list):
+            if len(line) == 1: 
+                text[i] = line[0]
+            else:
+                rule, production = line
+                text[i] = f"{rule.upper()}{" " * (offset-len(rule))} ::= {" ".join([s.upper() if (len(s) > 1 and s[::len(s)-1] == "<>") else s for s in production.split()])}"
+
+    text = "\n".join(text) + "\n"
+
+    with open(path, "w") as file:
+        file.write(text)
+
+
+if __name__ == "__main__":
+    from sys import argv
+
+    regularize(argv[-1])

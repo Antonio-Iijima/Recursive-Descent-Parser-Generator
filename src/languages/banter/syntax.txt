@@ -1,30 +1,30 @@
 #require datatypes.string
 #require math.basic
 
-<program>           ::= <statement_list> | <expression>
+<PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
 
-<statement_list>    ::= <statement> | <statement> \n <statement_list>
-<statement>         ::= <assignment> | <conditional> | <return> | <goto> | <print>
+<STATEMENT_LIST> ::= <STATEMENT> | <STATEMENT> \n <STATEMENT_LIST>
+<STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <GOTO> | <PRINT>
 
-<expression>        ::= <mathexpr>
-<mathexpr>          ::= <String>
+<EXPRESSION>     ::= <MATHEXPR>
+<MATHEXPR>       ::= <STRING>
 
-<assignment>        ::= let <word> be <expression>
+<ASSIGNMENT>     ::= let <WORD> be <EXPRESSION>
 
-<conditional>       ::= <if_then> | <if_then_else>
-<if_then>           ::= if <comparison>, then \n <block>
-<if_then_else>      ::= if <comparison>, then \n <block> \n else \n <block>
-<block>             ::= INDENT <statement_list> DEDENT
+<CONDITIONAL>    ::= <IF_THEN> | <IF_THEN_ELSE>
+<IF_THEN>        ::= if <comparison>, then \n <BLOCK>
+<IF_THEN_ELSE>   ::= if <comparison>, then \n <BLOCK> \n else \n <BLOCK>
+<BLOCK>          ::= INDENT <STATEMENT_LIST> DEDENT
 
-<return>            ::= return <expression>
+<RETURN>         ::= return <EXPRESSION>
 
-<goto>              ::= <marker> | <jump>
-<marker>            ::= @ <number> \n <statement_list>
-<number>            ::= <label> | <bool>
-<bool>              ::= True | False
-<label>             ::= <Word>
-<jump>              ::= goto instruction <number>
+<GOTO>           ::= <MARKER> | <JUMP>
+<MARKER>         ::= @ <NUMBER> \n <STATEMENT_LIST>
+<NUMBER>         ::= <LABEL> | <BOOL>
+<BOOL>           ::= True | False
+<LABEL>          ::= <WORD>
+<JUMP>           ::= goto instruction <NUMBER>
 
-<print>             ::= print <expression>
+<PRINT>          ::= print <EXPRESSION>
 
-<Letter>            ::= _
+<LETTER>         ::= _

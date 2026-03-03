@@ -151,7 +151,6 @@ def tokenize(string: str) -> list:
                 break
         else: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
     
-    # print(tokens)
     return tokens
  
 

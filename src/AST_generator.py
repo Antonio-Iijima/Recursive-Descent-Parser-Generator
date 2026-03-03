@@ -40,6 +40,7 @@ def compile_language(path: str) -> None:
 
     print()
     print("Done!")
+    print()
 
 
 
@@ -146,23 +147,6 @@ def validate(parsed: Parsed, solution: any) -> str:
 
 
 
-def read_attributes(eval_text: str) -> dict[Nonterminal, list]:
-    """Build a dictionary of modified grammar rules from semantics file text."""
-    
-    lines = eval_text.splitlines()
-    addenda: dict[Nonterminal, list] = {}
-
-    for line in lines:
-        if line.startswith("#!"):
-            # e.g.
-            #! <if_then> ::= if <comparison>, then NEWLINE <block>
-            rule, alternatives = line.removeprefix("#!").strip().split("::=")
-            addenda[Nonterminal(rule)] = [split_pattern(pattern) for pattern in alternatives.split("|")]
-    
-    return addenda
-
-
-
 def generate_AST(path: str, GRAMMAR: dict) -> None:
     """
 Generates an AST from a context-free grammar.
@@ -245,8 +229,6 @@ EPSILA: set = {{EPSILON}}
 {"\n\n".join(f"{modifier} = {val}" for modifier, val in Nonterminal.modifiers.items())}
 
 INDENT = "   "
-
-IGNORED = {{ " ", "\\n" }}
 
 
 
