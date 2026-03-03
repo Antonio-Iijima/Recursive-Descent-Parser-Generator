@@ -215,8 +215,9 @@ K = {max(map(len, (pattern for alternatives in GRAMMAR.values() for pattern in a
 EPSILON = "ε"
 
 TERMINALS = {{
-   {",\n   ".join((f"'{t}'" for t in sorted(TERMINALS, key=len, reverse=True)))}
-}}.union({{" "}})
+   {",\n   ".join((f"'{t}'" for t in sorted(TERMINALS, key=len, reverse=True)))},
+   ' '
+}}
 
 TOKENS = TERMINALS.union(GRAMMAR.keys())
 
