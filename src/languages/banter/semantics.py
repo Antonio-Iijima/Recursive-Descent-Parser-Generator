@@ -42,13 +42,19 @@ def p_return(expr):
 
 
 def p_marker(expr):
-    mark = expr(1)
-    if not mark in g_markers: 
-        g_markers[mark] = lambda: expr(3)
-    expr(3)
+    mark = f"marker_{expr(1)}"
+    jump = True
+    while jump:
+        try:
+            expr(3)
+            jump = False
+        except Exception as e:
+            jump = (mark in e.args[0])
+            if not jump: raise e
+
 
 def p_jump(expr):
-    g_markers[expr(2)]()
+    raise Exception(f"marker_{expr(2)}")
 
 
 def p_label(expr):

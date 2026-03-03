@@ -18,6 +18,8 @@
 
 ### Requirements
 
+magicc was developed using Python 3.12. Support for earlier versions is not guaranteed.
+
 magicc uses [Nuitka](https://nuitka.net/user-documentation/) for compilation. It is strongly recommended to use a Python virtual environment for managing dependencies, which are provided in `.requirements`.
 
 ```bash
