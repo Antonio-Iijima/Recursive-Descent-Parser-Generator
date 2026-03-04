@@ -122,7 +122,7 @@ def evaluate(AST: Rule):
 def process(string: str, dFlag: bool) -> any:
     try:
         out = evaluate(parse(string, dFlag=dFlag).AST)
-        if out: print(out)
+        if out is not None: print(out)
     except Exception as e:
         if (
             len(e.args) > 1

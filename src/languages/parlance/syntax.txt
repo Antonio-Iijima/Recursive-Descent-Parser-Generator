@@ -1,0 +1,34 @@
+#require datatypes.string
+#require datatypes.list.extended
+#require math.basic
+
+<PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
+
+<STATEMENT_LIST> ::= <STATEMENT> | <STATEMENT> \n <STATEMENT_LIST>
+<STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <GOTO> | <PRINT>
+
+<EXPRESSION>     ::= <MATHEXPR> | <LISTEXPR>
+<MATHEXPR>       ::= <STRING>
+
+<NUMBER>         ::= <LIST>
+<LIST>           ::= <LABEL>
+
+<ASSIGNMENT>     ::= let <WORD> be <EXPRESSION>
+
+<CONDITIONAL>    ::= <IF_THEN> | <IF_THEN_ELSE>
+<IF_THEN>        ::= if <comparison>, then <BLOCK>
+<IF_THEN_ELSE>   ::= if <comparison>, then <BLOCK> \n else <BLOCK>
+<BLOCK>          ::= \n INDENT <STATEMENT_LIST> DEDENT
+
+<RETURN>         ::= return <EXPRESSION>
+
+<GOTO>           ::= <MARKER> | <JUMP>
+<MARKER>         ::= @ <NUMBER> \n <STATEMENT_LIST>
+<NUMBER>         ::= <LABEL> | <BOOL>
+<BOOL>           ::= True | False
+<LABEL>          ::= <WORD>
+<JUMP>           ::= goto instruction <NUMBER>
+
+<PRINT>          ::= print <EXPRESSION>
+
+<LETTER>         ::= _
