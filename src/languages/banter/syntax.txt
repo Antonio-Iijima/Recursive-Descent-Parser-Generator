@@ -1,4 +1,5 @@
 #require datatypes.string
+#require datatypes.variable
 #require math.infix
 
 <PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
@@ -9,7 +10,7 @@
 <EXPRESSION>     ::= <MATHEXPR>
 <MATHEXPR>       ::= <STRING>
 
-<ASSIGNMENT>     ::= let <WORD> be <EXPRESSION>
+<ASSIGNMENT>     ::= let <ID> be <EXPRESSION>
 
 <CONDITIONAL>    ::= <IF_THEN> | <IF_THEN_ELSE>
 <IF_THEN>        ::= if <comparison>, then <BLOCK>
@@ -22,7 +23,6 @@
 <MARKER>         ::= @ <NUMBER> \n <STATEMENT_LIST>
 <NUMBER>         ::= <LABEL> | <BOOL>
 <BOOL>           ::= True | False
-<LABEL>          ::= <WORD>
 <JUMP>           ::= goto instruction <NUMBER>
 
 <PRINT>          ::= print <EXPRESSION>
