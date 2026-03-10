@@ -114,7 +114,7 @@ The `eval.py` file combines provided semantics into a single evaluation function
 
 ### Evaluation
 
-As the evaluation traverses the AST, child nodes are converted in to lazy function calls to functions provided by the `semantics.py` files. Each semantic function receives an `expr`, which is simply a wrapper which contains a lazy dispatch dictionary of the functions of the production rule. So the example `<!INT>` rule (0th alternative), evaluated with `p_int_0`, accesses `expr(0)` and `expr(1)`, respectively corresponding to `<INT>` and `<DIGIT>` in the rule. For a better understanding, see the `EVAL` section of a generated `AST.py` file.
+As the evaluation traverses the AST, child nodes are converted into lazy functions constructed from the semantic rules associated with each production provided by the `semantics.py` files. Each semantic function receives an `expr`, which is simply a wrapper containing a dispatch dictionary of the semantic rules. So the example `<!INT>` rule (0th alternative), evaluated with `p_int_0`, accesses `expr(0)` and `expr(1)`, respectively corresponding to `<INT>` and `<DIGIT>` in the rule. For a better understanding, see the `EVAL` section of a generated `AST.py` file.
 
 
 ## Contributing
